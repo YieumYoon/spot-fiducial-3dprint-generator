@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spot Fiducial AprilTag Plate Generator</title>
+    <meta
+      name="description"
+      content="Generate fabrication-ready Spot fiducial SVG plates with AprilTag, fitted text, and validated drill presets."
+    />
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./vendor/opentype.js"></script>
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <main class="layout">
+        <section class="preview-panel">
+          <div class="preview-header">
+            <div>
+              <h1>Spot Fiducial AprilTag Plate Generator</h1>
+            </div>
+            <div class="status-chip" id="status-chip">Loading assets</div>
+          </div>
+
+          <div class="preview-stage">
+            <div class="preview-frame">
+              <div class="preview-svg-wrap" id="preview-root" aria-live="polite"></div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="control-panel">
+          <form id="generator-form" class="control-form" novalidate>
+            <section class="panel-card">
+              <div class="card-header">
+                <p class="eyebrow">Plate Inputs</p>
+                <p class="card-copy">Preview guides are shown on-screen only. Export stays fabrication-clean.</p>
+              </div>
+
+              <label class="field">
+                <span>Company name</span>
+                <input id="company-name" name="companyName" type="text" maxlength="28" placeholder="Company" />
+                <small class="field-message" id="company-name-message"></small>
+              </label>
+
+              <label class="field">
+                <span>Robot name</span>
+                <input id="robot-name" name="robotName" type="text" maxlength="28" placeholder="Spot" />
+                <small class="field-message" id="robot-name-message"></small>
+              </label>
+
+              <label class="field">
+                <span>AprilTag ID</span>
+                <select id="tag-id" name="tagId"></select>
+                <small class="field-message" id="tag-id-message"></small>
+              </label>
+
+              <label class="field">
+                <span>Font family</span>
+                <select id="font-family" name="fontFamily"></select>
+                <small class="field-message" id="font-family-message"></small>
+              </label>
+
+              <label class="field">
+                <span>Drill-hole preset</span>
+                <select id="drill-preset" name="drillPreset"></select>
+                <small class="field-message" id="drill-preset-message"></small>
+              </label>
+            </section>
+
+            <section class="panel-card">
+              <div class="card-header">
+                <p class="eyebrow">Logo Handling</p>
+                <p class="card-copy">Uploaded SVGs take priority over the fallback mode below.</p>
+              </div>
+
+              <div class="field radio-group">
+                <span>Fallback logo mode</span>
+                <label class="radio-option">
+                  <input type="radio" name="logoMode" value="default" checked />
+                  <span>Use built-in default logo</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="logoMode" value="empty" />
+                  <span>Leave logo box empty</span>
+                </label>
+              </div>
+
+              <label class="field">
+                <span>Upload custom SVG logo</span>
+                <input id="logo-upload" name="logoUpload" type="file" accept=".svg,image/svg+xml" />
+                <small class="field-message" id="logo-upload-message"></small>
+              </label>
+
+              <button class="ghost-button" id="clear-logo-upload" type="button">Clear uploaded logo</button>
+            </section>
+
+            <section class="panel-card summary-card">
+              <div class="card-header">
+                <p class="eyebrow">Export</p>
+                <p class="card-copy">All visible text exports as SVG paths. Preview guides are excluded.</p>
+              </div>
+
+              <div class="summary-list">
+                <div>
+                  <span class="meta-label">Tag family</span>
+                  <strong>tag36h11</strong>
+                </div>
+                <div>
+                  <span class="meta-label">Tag range</span>
+                  <strong>001-586</strong>
+                </div>
+                <div>
+                  <span class="meta-label">Plate geometry</span>
+                  <strong>182.5 × 209.875 mm</strong>
+                </div>
+              </div>
+
+              <div class="banner" id="global-message"></div>
+              <button class="primary-button" id="export-button" type="button">Download SVG</button>
+            </section>
+          </form>
+        </aside>
+      </main>
+    </div>
+  </body>
+</html>

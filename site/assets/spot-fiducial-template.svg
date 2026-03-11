@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="182.5mm" height="209.875mm" viewBox="0 0 182.5 209.875" version="1.1">
+  <title>Spot Fiducial AprilTag Production Template</title>
+  <desc>Clean production template for Spot fiducial SVG composition. Dynamic content is inserted into the named groups below.</desc>
+  <metadata id="template-spec">{"templateVersion":"1.1.0","templateName":"Spot Fiducial AprilTag Production Template","units":"mm","coordinateSystem":"top-left-origin","apriltag":{"family":"tag36h11","gridSize":8,"outerBlackBorderSquareMm":146.0,"tagBox":{"x":18.25,"y":36.5,"width":146.0,"height":146.0}},"plate":{"width":182.5,"height":209.875,"cornerRadius":9.0},"holeModel":{"centerInset":9.125,"defaultDiameter":3.4,"globalPresetOnly":true},"slots":{"companyName":{"x":18.25,"y":0.0,"width":18.25,"height":9.125},"robotName":{"x":18.25,"y":9.125,"width":18.25,"height":9.125},"fixedTitle":{"x":36.5,"y":0.0,"width":109.5,"height":6.25},"displayId":{"x":36.5,"y":6.25,"width":109.5,"height":12.0},"logo":{"x":146.0,"y":0.0,"width":18.25,"height":18.25},"warning":{"x":18.25,"y":200.75,"width":146.0,"height":9.125}}}</metadata>
+  <defs>
+    <clipPath id="clip-company-box"><rect x="18.25" y="0" width="18.25" height="9.125" /></clipPath>
+    <clipPath id="clip-robot-box"><rect x="18.25" y="9.125" width="18.25" height="9.125" /></clipPath>
+    <clipPath id="clip-title-box"><rect x="36.5" y="0" width="109.5" height="6.25" /></clipPath>
+    <clipPath id="clip-id-box"><rect x="36.5" y="6.25" width="109.5" height="12" /></clipPath>
+    <clipPath id="clip-logo-box"><rect x="146" y="0" width="18.25" height="18.25" /></clipPath>
+    <clipPath id="clip-warning-box"><rect x="18.25" y="200.75" width="146" height="9.125" /></clipPath>
+    <symbol id="default-logo-mark" viewBox="0 0 329 178">
+      <path d="M56.38 0.00 L259.62 0.00 L275.62 2.00 L292.81 7.06 L296.00 11.38 L296.00 20.62 L281.94 48.81 L275.81 57.94 L267.62 61.00 L262.19 61.06 L255.06 67.19 L243.94 93.81 L239.06 102.19 L238.00 109.62 L243.19 115.94 L247.19 117.94 L264.81 124.06 L276.19 129.94 L321.81 148.06 L326.94 153.19 L329.00 159.38 L329.00 164.62 L326.94 169.81 L323.81 173.94 L315.62 178.00 L308.38 178.00 L303.19 175.94 L297.06 168.81 L294.94 153.19 L287.81 147.06 L261.62 137.00 L221.38 127.00 L214.06 122.81 L211.00 115.62 L211.00 111.38 L227.00 67.62 L225.94 63.19 L222.62 61.00 L216.19 61.06 L187.19 75.06 L184.00 80.38 L187.06 90.81 L198.94 113.19 L212.00 145.38 L211.94 153.81 L204.81 160.94 L200.62 162.00 L195.19 160.94 L188.06 154.81 L187.00 146.38 L189.06 142.19 L194.94 136.81 L195.00 129.38 L181.94 106.19 L179.06 103.81 L172.94 93.19 L162.06 78.81 L161.00 70.38 L164.06 64.19 L168.94 60.81 L167.62 58.00 L115.38 57.00 L107.62 54.00 L103.19 54.06 L99.06 57.19 L97.94 60.81 L90.06 71.19 L78.00 91.38 L78.06 96.81 L82.19 100.94 L126.81 125.06 L141.19 134.94 L148.81 138.06 L154.94 144.19 L156.00 155.62 L149.81 163.94 L144.62 166.00 L138.38 166.00 L133.19 163.94 L129.06 159.81 L127.00 155.62 L128.00 141.38 L120.81 134.06 L104.81 126.06 L58.19 108.94 L50.06 102.81 L49.00 100.62 L50.06 89.19 L51.94 87.81 L52.06 85.19 L53.94 83.81 L68.00 55.62 L67.94 52.19 L65.81 50.06 L57.38 49.00 L51.62 46.00 L29.19 51.06 L25.00 56.38 L25.00 59.62 L34.94 85.19 L48.00 126.38 L46.94 132.81 L43.81 137.94 L35.62 142.00 L27.19 140.94 L20.06 133.81 L19.00 124.38 L22.06 118.19 L29.94 111.81 L30.00 105.38 L18.94 80.19 L17.06 78.81 L1.06 48.81 L0.00 42.38 L2.06 37.19 L5.19 34.06 L38.81 20.94 L42.00 14.62 L42.06 10.19 L45.06 5.19 L49.19 2.06 Z" fill="#111111" />
+    </symbol>
+  </defs>
+
+  <g id="background">
+    <path id="plate-background-path" fill="#ffffff" d="M 9.000 0 L 173.500 0 A 9.000 9.000 0 0 1 182.500 9.000 L 182.500 200.875 A 9.000 9.000 0 0 1 173.500 209.875 L 9.000 209.875 A 9.000 9.000 0 0 1 0 200.875 L 0 9.000 A 9.000 9.000 0 0 1 9.000 0 Z" />
+  </g>
+
+  <g id="plate-outline">
+    <path id="plate-outline-path" fill="none" stroke="#111111" stroke-width="0.35" vector-effect="non-scaling-stroke" d="M 9.000 0 L 173.500 0 A 9.000 9.000 0 0 1 182.500 9.000 L 182.500 200.875 A 9.000 9.000 0 0 1 173.500 209.875 L 9.000 209.875 A 9.000 9.000 0 0 1 0 200.875 L 0 9.000 A 9.000 9.000 0 0 1 9.000 0 Z" />
+  </g>
+
+  <g id="holes">
+    <circle id="hole-top-left" cx="9.125" cy="9.125" r="1.7" fill="none" stroke="#111111" stroke-width="0.35" vector-effect="non-scaling-stroke" />
+    <circle id="hole-top-right" cx="173.375" cy="9.125" r="1.7" fill="none" stroke="#111111" stroke-width="0.35" vector-effect="non-scaling-stroke" />
+    <circle id="hole-bottom-left" cx="9.125" cy="200.75" r="1.7" fill="none" stroke="#111111" stroke-width="0.35" vector-effect="non-scaling-stroke" />
+    <circle id="hole-bottom-right" cx="173.375" cy="200.75" r="1.7" fill="none" stroke="#111111" stroke-width="0.35" vector-effect="non-scaling-stroke" />
+  </g>
+
+  <g id="apriltag">
+    <g id="apriltag-background">
+      <rect x="18.25" y="36.5" width="146" height="146" fill="#ffffff" />
+    </g>
+    <g id="apriltag-black"></g>
+  </g>
+
+  <g id="company-name" data-slot="companyName" clip-path="url(#clip-company-box)"></g>
+  <g id="robot-name" data-slot="robotName" clip-path="url(#clip-robot-box)"></g>
+  <g id="fixed-title" data-slot="fixedTitle" clip-path="url(#clip-title-box)"></g>
+  <g id="display-id" data-slot="displayId" clip-path="url(#clip-id-box)"></g>
+  <g id="logo" data-slot="logo" clip-path="url(#clip-logo-box)"></g>
+  <g id="bottom-warning" data-slot="warning" clip-path="url(#clip-warning-box)"></g>
+</svg>
