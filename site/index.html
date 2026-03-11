@@ -23,11 +23,13 @@
               <p class="section-copy">Live preview, validated inputs, clean SVG export.</p>
             </div>
 
-            <div class="status-chip" id="status-chip">Loading assets</div>
+            <div class="status-chip" id="status-chip" role="status" aria-live="polite" aria-atomic="true">
+              Loading assets
+            </div>
           </header>
 
           <div class="preview-frame">
-            <div class="preview-svg-wrap" id="preview-root" aria-live="polite"></div>
+            <div class="preview-svg-wrap" id="preview-root"></div>
           </div>
         </section>
 
@@ -40,31 +42,45 @@
                 <div class="field-grid">
                   <label class="field field-half">
                     <span class="field-label">Company name</span>
-                    <input id="company-name" name="companyName" type="text" maxlength="28" placeholder="Company" />
+                    <input
+                      id="company-name"
+                      name="companyName"
+                      type="text"
+                      maxlength="28"
+                      placeholder="Company"
+                      aria-describedby="company-name-message"
+                    />
                     <small class="field-message" id="company-name-message"></small>
                   </label>
 
                   <label class="field field-half">
                     <span class="field-label">Robot name</span>
-                    <input id="robot-name" name="robotName" type="text" maxlength="28" placeholder="Spot" />
+                    <input
+                      id="robot-name"
+                      name="robotName"
+                      type="text"
+                      maxlength="28"
+                      placeholder="Spot"
+                      aria-describedby="robot-name-message"
+                    />
                     <small class="field-message" id="robot-name-message"></small>
                   </label>
 
                   <label class="field field-third">
                     <span class="field-label">AprilTag ID</span>
-                    <select id="tag-id" name="tagId"></select>
+                    <select id="tag-id" name="tagId" aria-describedby="tag-id-message"></select>
                     <small class="field-message" id="tag-id-message"></small>
                   </label>
 
                   <label class="field field-third">
                     <span class="field-label">Font family</span>
-                    <select id="font-family" name="fontFamily"></select>
+                    <select id="font-family" name="fontFamily" aria-describedby="font-family-message"></select>
                     <small class="field-message" id="font-family-message"></small>
                   </label>
 
                   <label class="field field-third">
                     <span class="field-label">Drill-hole preset</span>
-                    <select id="drill-preset" name="drillPreset"></select>
+                    <select id="drill-preset" name="drillPreset" aria-describedby="drill-preset-message"></select>
                     <small class="field-message" id="drill-preset-message"></small>
                   </label>
                 </div>
@@ -73,12 +89,16 @@
               <section class="panel-section panel-section-bordered">
                 <h2>Logo</h2>
 
-                <div class="field radio-group">
+                <div class="field radio-group" id="logo-mode-field">
                   <span class="field-label">Source</span>
                   <div class="radio-stack">
                     <label class="radio-option">
                       <input type="radio" name="logoMode" value="default" checked />
                       <span class="radio-text">Default</span>
+                    </label>
+                    <label class="radio-option">
+                      <input type="radio" name="logoMode" value="custom" />
+                      <span class="radio-text">Custom</span>
                     </label>
                     <label class="radio-option">
                       <input type="radio" name="logoMode" value="empty" />
@@ -87,9 +107,15 @@
                   </div>
                 </div>
 
-                <label class="field field-full">
+                <label class="field field-full" id="logo-upload-field" hidden>
                   <span class="field-label">Custom SVG</span>
-                  <input id="logo-upload" name="logoUpload" type="file" accept=".svg,image/svg+xml" />
+                  <input
+                    id="logo-upload"
+                    name="logoUpload"
+                    type="file"
+                    accept=".svg,image/svg+xml"
+                    aria-describedby="logo-upload-message"
+                  />
                   <small class="field-message" id="logo-upload-message"></small>
                 </label>
 
@@ -99,8 +125,10 @@
 
             <section class="panel-card export-card">
               <h2>Export</h2>
-              <div class="banner" id="global-message"></div>
-              <button class="primary-button" id="export-button" type="button">Download SVG</button>
+              <div class="banner" id="global-message" role="status" aria-live="polite" aria-atomic="true"></div>
+              <button class="primary-button" id="export-button" type="button" aria-describedby="global-message">
+                Download SVG
+              </button>
             </section>
           </form>
         </aside>

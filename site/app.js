@@ -9,6 +9,8 @@ const dom = {
   previewRoot: document.querySelector("#preview-root"),
   exportButton: document.querySelector("#export-button"),
   clearLogoButton: document.querySelector("#clear-logo-upload"),
+  logoUploadField: document.querySelector("#logo-upload-field"),
+  logoModeField: document.querySelector("#logo-mode-field"),
   statusChip: document.querySelector("#status-chip"),
   globalMessage: document.querySelector("#global-message"),
   companyName: document.querySelector("#company-name"),
@@ -27,6 +29,39 @@ const dom = {
   }
 };
 
+dom.logoModeInputs = Array.from(dom.form.querySelectorAll('input[name="logoMode"]'));
+
+const validationTargets = {
+  companyName: [dom.companyName],
+  robotName: [dom.robotName],
+  tagId: [dom.tagId],
+  fontFamily: [dom.fontFamily],
+  drillPreset: [dom.drillPreset],
+  logoUpload: [dom.logoUpload, ...dom.logoModeInputs]
+};
+
+const validationContainers = {
+  companyName: [dom.companyName.closest(".field")],
+  robotName: [dom.robotName.closest(".field")],
+  tagId: [dom.tagId.closest(".field")],
+  fontFamily: [dom.fontFamily.closest(".field")],
+  drillPreset: [dom.drillPreset.closest(".field")],
+  logoUpload: [dom.logoModeField, dom.logoUploadField]
+};
+
+const fieldKeyByTarget = new Map([
+  [dom.companyName, "companyName"],
+  [dom.robotName, "robotName"],
+  [dom.tagId, "tagId"],
+  [dom.fontFamily, "fontFamily"],
+  [dom.drillPreset, "drillPreset"],
+  [dom.logoUpload, "logoUpload"]
+]);
+
+for (const radio of dom.logoModeInputs) {
+  fieldKeyByTarget.set(radio, "logoUpload");
+}
+
 const state = {
   ...DEFAULT_STATE,
   uploadLogoRecord: null
@@ -37,27 +72,76 @@ const runtime = {
   activeFont: null,
   fontError: "",
   logoError: "",
-  fontLoading: false
+  fontLoading: false,
+  attemptedExport: false,
+  touched: new Set(),
+  lastBlockingKeys: []
 };
 
 function syncLogoUi() {
-  dom.clearLogoButton.hidden = !dom.logoUpload.files.length;
+  const isCustom = state.logoMode === "custom";
+  const hasUpload = Boolean(dom.logoUpload.files.length);
+  dom.logoUploadField.hidden = !isCustom;
+  dom.logoUpload.disabled = !isCustom;
+  dom.clearLogoButton.hidden = !isCustom || !hasUpload;
 }
 
 function setStatus(text, tone) {
   dom.statusChip.textContent = text;
-  dom.statusChip.dataset.tone = tone;
+  if (tone) {
+    dom.statusChip.dataset.tone = tone;
+  } else {
+    delete dom.statusChip.dataset.tone;
+  }
 }
 
 function setGlobalMessage(text, tone) {
   dom.globalMessage.textContent = text;
-  dom.globalMessage.dataset.tone = tone;
+  if (tone) {
+    dom.globalMessage.dataset.tone = tone;
+  } else {
+    delete dom.globalMessage.dataset.tone;
+  }
+}
+
+function setFieldValidity(key, isInvalid) {
+  for (const target of validationTargets[key] ?? []) {
+    if (!target) {
+      continue;
+    }
+
+    if (isInvalid) {
+      target.setAttribute("aria-invalid", "true");
+    } else {
+      target.removeAttribute("aria-invalid");
+    }
+  }
+
+  for (const container of validationContainers[key] ?? []) {
+    if (!container) {
+      continue;
+    }
+
+    if (isInvalid) {
+      container.dataset.invalid = "true";
+    } else {
+      delete container.dataset.invalid;
+    }
+  }
+}
+
+function markFieldTouched(target) {
+  const key = fieldKeyByTarget.get(target);
+  if (key) {
+    runtime.touched.add(key);
+  }
 }
 
 function resetFieldMessages() {
-  for (const message of Object.values(dom.messages)) {
+  for (const [key, message] of Object.entries(dom.messages)) {
     message.textContent = "";
     message.dataset.tone = "";
+    setFieldValidity(key, false);
   }
 }
 
@@ -121,6 +205,39 @@ function readStateFromForm() {
   state.logoMode = dom.form.elements.logoMode.value;
 }
 
+function buildBlockingErrors(previewErrors) {
+  const mergedErrors = { ...previewErrors };
+
+  if (state.logoMode === "custom" && runtime.logoError) {
+    mergedErrors.logoUpload = runtime.logoError;
+  }
+
+  if (state.logoMode === "custom" && !state.uploadLogoRecord) {
+    mergedErrors.logoUpload = mergedErrors.logoUpload ?? "Upload a custom SVG or choose Default or Empty.";
+  }
+
+  return mergedErrors;
+}
+
+function shouldDisplayValidation(key) {
+  return runtime.attemptedExport || runtime.touched.has(key);
+}
+
+function focusFirstBlockingField() {
+  const [firstKey] = runtime.lastBlockingKeys;
+  if (!firstKey) {
+    return;
+  }
+
+  if (firstKey === "logoUpload") {
+    const target = state.logoMode === "custom" ? dom.logoUpload : dom.logoModeInputs[0];
+    target?.focus();
+    return;
+  }
+
+  validationTargets[firstKey]?.[0]?.focus();
+}
+
 function downloadSvg(filename, svgText) {
   const blob = new Blob([svgText], { type: "image/svg+xml;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -148,17 +265,18 @@ function render() {
 
   dom.previewRoot.innerHTML = previewResult.svgText;
 
-  const mergedErrors = { ...previewResult.errors };
-  if (runtime.logoError) {
-    mergedErrors.logoUpload = runtime.logoError;
-  }
+  const mergedErrors = buildBlockingErrors(previewResult.errors);
+  const blockingEntries = Object.entries(mergedErrors).filter(([, message]) => Boolean(message));
+  runtime.lastBlockingKeys = blockingEntries.map(([key]) => key);
 
-  for (const [key, message] of Object.entries(mergedErrors)) {
-    const field = dom.messages[key];
-    if (field) {
-      field.textContent = message;
-      field.dataset.tone = "error";
+  for (const [key, message] of blockingEntries) {
+    if (!shouldDisplayValidation(key)) {
+      continue;
     }
+
+    dom.messages[key].textContent = message;
+    dom.messages[key].dataset.tone = "error";
+    setFieldValidity(key, true);
   }
 
   if (runtime.fontError) {
@@ -166,18 +284,25 @@ function render() {
     dom.messages.fontFamily.dataset.tone = "info";
   }
 
-  const blockingErrors = Object.values(mergedErrors).filter(Boolean);
+  const blockingErrors = blockingEntries.map(([, message]) => message);
+  const hasInteracted = runtime.attemptedExport || runtime.touched.size > 0;
   dom.exportButton.disabled = runtime.fontLoading || blockingErrors.length > 0;
 
   if (blockingErrors.length > 0) {
-    setStatus("Export blocked", "blocked");
-    setGlobalMessage(blockingErrors[0], "error");
+    if (hasInteracted) {
+      const primaryBlockingMessage = blockingEntries.find(([key]) => shouldDisplayValidation(key))?.[1] ?? blockingErrors[0];
+      setStatus("Export blocked", "blocked");
+      setGlobalMessage(primaryBlockingMessage, "error");
+    } else {
+      setStatus("Complete plate details");
+      setGlobalMessage("Enter company and robot names to enable export.", "");
+    }
   } else if (runtime.fontError) {
     setStatus("Export ready", "ready");
     setGlobalMessage(runtime.fontError, "ready");
   } else {
     setStatus("Export ready", "ready");
-    setGlobalMessage(`Ready to export ${previewResult.filename}`, "ready");
+    setGlobalMessage(`Ready to export ${previewResult.filename}. Preview guides stay on-screen only.`, "ready");
   }
 }
 
@@ -197,6 +322,10 @@ async function handleLogoUpload() {
     render();
     return;
   }
+
+  state.logoMode = "custom";
+  dom.form.elements.logoMode.value = "custom";
+  runtime.touched.add("logoUpload");
 
   if (!file.name.toLowerCase().endsWith(".svg")) {
     state.uploadLogoRecord = null;
@@ -218,6 +347,15 @@ async function handleLogoUpload() {
 }
 
 async function handleExport() {
+  readStateFromForm();
+  runtime.attemptedExport = true;
+  render();
+
+  if (dom.exportButton.disabled) {
+    focusFirstBlockingField();
+    return;
+  }
+
   const exportResult = composeSvg({
     templateText: runtime.templateText,
     state,
@@ -226,8 +364,9 @@ async function handleExport() {
     includeGuides: false
   });
 
-  if (Object.keys(exportResult.errors).length > 0 || runtime.logoError) {
+  if (Object.keys(buildBlockingErrors(exportResult.errors)).length > 0) {
     render();
+    focusFirstBlockingField();
     return;
   }
 
@@ -246,7 +385,9 @@ async function init() {
   render();
 
   dom.form.addEventListener("input", (event) => {
+    markFieldTouched(event.target);
     readStateFromForm();
+    syncLogoUi();
     if (event.target === dom.fontFamily) {
       return;
     }
@@ -255,6 +396,7 @@ async function init() {
   });
 
   dom.form.addEventListener("change", async (event) => {
+    markFieldTouched(event.target);
     if (event.target === dom.fontFamily) {
       await handleFontSelection();
       return;
@@ -266,13 +408,16 @@ async function init() {
     }
 
     readStateFromForm();
+    syncLogoUi();
     render();
   });
 
   dom.clearLogoButton.addEventListener("click", () => {
     state.uploadLogoRecord = null;
+    state.logoMode = "default";
     runtime.logoError = "";
     dom.logoUpload.value = "";
+    dom.form.elements.logoMode.value = "default";
     syncLogoUi();
     render();
   });

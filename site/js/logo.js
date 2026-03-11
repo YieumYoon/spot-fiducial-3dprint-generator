@@ -170,9 +170,13 @@ function appendImportedMarkup(targetGroup, markup, transform) {
 export function populateLogoGroup({ targetGroup, templateDocument, slot, logoMode, uploadRecord }) {
   clearChildren(targetGroup);
 
-  if (uploadRecord) {
-    appendImportedMarkup(targetGroup, uploadRecord.markup, fitViewBoxIntoSlot(uploadRecord.viewBox, slot));
-    return "Uploaded SVG";
+  if (logoMode === "custom") {
+    if (uploadRecord) {
+      appendImportedMarkup(targetGroup, uploadRecord.markup, fitViewBoxIntoSlot(uploadRecord.viewBox, slot));
+      return "Uploaded SVG";
+    }
+
+    return "Custom SVG";
   }
 
   if (logoMode !== "default") {
