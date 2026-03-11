@@ -16,108 +16,89 @@
   <body>
     <div class="app-shell">
       <main class="layout">
-        <section class="preview-panel">
-          <div class="preview-header">
-            <div>
-              <h1>Spot Fiducial AprilTag Plate Generator</h1>
+        <section class="preview-panel" aria-labelledby="page-title">
+          <header class="preview-header">
+            <div class="title-block">
+              <h1 id="page-title">Spot Fiducial plate generator</h1>
+              <p class="section-copy">Live preview, validated inputs, clean SVG export.</p>
             </div>
-            <div class="status-chip" id="status-chip">Loading assets</div>
-          </div>
 
-          <div class="preview-stage">
-            <div class="preview-frame">
-              <div class="preview-svg-wrap" id="preview-root" aria-live="polite"></div>
-            </div>
+            <div class="status-chip" id="status-chip">Loading assets</div>
+          </header>
+
+          <div class="preview-frame">
+            <div class="preview-svg-wrap" id="preview-root" aria-live="polite"></div>
           </div>
         </section>
 
         <aside class="control-panel">
           <form id="generator-form" class="control-form" novalidate>
-            <section class="panel-card">
-              <div class="card-header">
-                <p class="eyebrow">Plate Inputs</p>
-                <p class="card-copy">Preview guides are shown on-screen only. Export stays fabrication-clean.</p>
-              </div>
+            <section class="panel-card control-card">
+              <section class="panel-section">
+                <h2>Plate</h2>
 
-              <label class="field">
-                <span>Company name</span>
-                <input id="company-name" name="companyName" type="text" maxlength="28" placeholder="Company" />
-                <small class="field-message" id="company-name-message"></small>
-              </label>
+                <div class="field-grid">
+                  <label class="field field-half">
+                    <span class="field-label">Company name</span>
+                    <input id="company-name" name="companyName" type="text" maxlength="28" placeholder="Company" />
+                    <small class="field-message" id="company-name-message"></small>
+                  </label>
 
-              <label class="field">
-                <span>Robot name</span>
-                <input id="robot-name" name="robotName" type="text" maxlength="28" placeholder="Spot" />
-                <small class="field-message" id="robot-name-message"></small>
-              </label>
+                  <label class="field field-half">
+                    <span class="field-label">Robot name</span>
+                    <input id="robot-name" name="robotName" type="text" maxlength="28" placeholder="Spot" />
+                    <small class="field-message" id="robot-name-message"></small>
+                  </label>
 
-              <label class="field">
-                <span>AprilTag ID</span>
-                <select id="tag-id" name="tagId"></select>
-                <small class="field-message" id="tag-id-message"></small>
-              </label>
+                  <label class="field field-third">
+                    <span class="field-label">AprilTag ID</span>
+                    <select id="tag-id" name="tagId"></select>
+                    <small class="field-message" id="tag-id-message"></small>
+                  </label>
 
-              <label class="field">
-                <span>Font family</span>
-                <select id="font-family" name="fontFamily"></select>
-                <small class="field-message" id="font-family-message"></small>
-              </label>
+                  <label class="field field-third">
+                    <span class="field-label">Font family</span>
+                    <select id="font-family" name="fontFamily"></select>
+                    <small class="field-message" id="font-family-message"></small>
+                  </label>
 
-              <label class="field">
-                <span>Drill-hole preset</span>
-                <select id="drill-preset" name="drillPreset"></select>
-                <small class="field-message" id="drill-preset-message"></small>
-              </label>
+                  <label class="field field-third">
+                    <span class="field-label">Drill-hole preset</span>
+                    <select id="drill-preset" name="drillPreset"></select>
+                    <small class="field-message" id="drill-preset-message"></small>
+                  </label>
+                </div>
+              </section>
+
+              <section class="panel-section panel-section-bordered">
+                <h2>Logo</h2>
+
+                <div class="field radio-group">
+                  <span class="field-label">Source</span>
+                  <div class="radio-stack">
+                    <label class="radio-option">
+                      <input type="radio" name="logoMode" value="default" checked />
+                      <span class="radio-text">Default</span>
+                    </label>
+                    <label class="radio-option">
+                      <input type="radio" name="logoMode" value="empty" />
+                      <span class="radio-text">Empty</span>
+                    </label>
+                  </div>
+                </div>
+
+                <label class="field field-full">
+                  <span class="field-label">Custom SVG</span>
+                  <input id="logo-upload" name="logoUpload" type="file" accept=".svg,image/svg+xml" />
+                  <small class="field-message" id="logo-upload-message"></small>
+                </label>
+
+                <button class="ghost-button" id="clear-logo-upload" type="button" hidden>Clear uploaded logo</button>
+              </section>
             </section>
 
-            <section class="panel-card">
-              <div class="card-header">
-                <p class="eyebrow">Logo Handling</p>
-                <p class="card-copy">Uploaded SVGs take priority over the fallback mode below.</p>
-              </div>
-
-              <div class="field radio-group">
-                <span>Fallback logo mode</span>
-                <label class="radio-option">
-                  <input type="radio" name="logoMode" value="default" checked />
-                  <span>Use built-in default logo</span>
-                </label>
-                <label class="radio-option">
-                  <input type="radio" name="logoMode" value="empty" />
-                  <span>Leave logo box empty</span>
-                </label>
-              </div>
-
-              <label class="field">
-                <span>Upload custom SVG logo</span>
-                <input id="logo-upload" name="logoUpload" type="file" accept=".svg,image/svg+xml" />
-                <small class="field-message" id="logo-upload-message"></small>
-              </label>
-
-              <button class="ghost-button" id="clear-logo-upload" type="button">Clear uploaded logo</button>
-            </section>
-
-            <section class="panel-card summary-card">
-              <div class="card-header">
-                <p class="eyebrow">Export</p>
-                <p class="card-copy">All visible text exports as SVG paths. Preview guides are excluded.</p>
-              </div>
-
-              <div class="summary-list">
-                <div>
-                  <span class="meta-label">Tag family</span>
-                  <strong>tag36h11</strong>
-                </div>
-                <div>
-                  <span class="meta-label">Tag range</span>
-                  <strong>001-586</strong>
-                </div>
-                <div>
-                  <span class="meta-label">Plate geometry</span>
-                  <strong>182.5 × 209.875 mm</strong>
-                </div>
-              </div>
-
+            <section class="panel-card export-card">
+              <h2>Export</h2>
               <div class="banner" id="global-message"></div>
               <button class="primary-button" id="export-button" type="button">Download SVG</button>
             </section>

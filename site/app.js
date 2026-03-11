@@ -1,6 +1,6 @@
-import { DEFAULT_STATE, DRILL_PRESETS, FALLBACK_FONT_OPTION, FIXED_STRINGS, FONT_OPTIONS, TAG_RANGE } from "./js/config.js";
+import { DEFAULT_STATE, DRILL_PRESETS, FALLBACK_FONT_OPTION, FONT_OPTIONS, TAG_RANGE } from "./js/config.js";
 import { composeSvg } from "./js/compose.js";
-import { buildFilename, formatTagId, getFontOption } from "./js/core.js";
+import { formatTagId, getFontOption } from "./js/core.js";
 import { sanitizeUploadedLogo } from "./js/logo.js";
 import { ensureFont } from "./js/text.js";
 
@@ -39,6 +39,10 @@ const runtime = {
   logoError: "",
   fontLoading: false
 };
+
+function syncLogoUi() {
+  dom.clearLogoButton.hidden = !dom.logoUpload.files.length;
+}
 
 function setStatus(text, tone) {
   dom.statusChip.textContent = text;
@@ -189,6 +193,7 @@ async function handleLogoUpload() {
   const [file] = dom.logoUpload.files;
   if (!file) {
     state.uploadLogoRecord = null;
+    syncLogoUi();
     render();
     return;
   }
@@ -196,6 +201,7 @@ async function handleLogoUpload() {
   if (!file.name.toLowerCase().endsWith(".svg")) {
     state.uploadLogoRecord = null;
     runtime.logoError = "Uploaded logo is not a valid SVG file.";
+    syncLogoUi();
     render();
     return;
   }
@@ -207,6 +213,7 @@ async function handleLogoUpload() {
     runtime.logoError = "Uploaded logo is not a valid SVG file.";
   }
 
+  syncLogoUi();
   render();
 }
 
@@ -232,6 +239,7 @@ async function init() {
   populateFontOptions();
   populateDrillOptions();
   syncFormFromState();
+  syncLogoUi();
 
   runtime.templateText = await fetch("./assets/spot-fiducial-template.svg").then((response) => response.text());
   await loadFont(state.fontFamily);
@@ -265,12 +273,11 @@ async function init() {
     state.uploadLogoRecord = null;
     runtime.logoError = "";
     dom.logoUpload.value = "";
+    syncLogoUi();
     render();
   });
 
   dom.exportButton.addEventListener("click", handleExport);
-
-  setGlobalMessage(`Ready to export ${buildFilename(state)}`, "ready");
 }
 
 init().catch((error) => {

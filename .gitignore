@@ -9,3 +9,5 @@ vendor/*
 .playwright-cli/console-2026-03-10T19-56-55-689Z.log
 node_modules/
 npm-debug.log*
+.codex/
+/design-system/
