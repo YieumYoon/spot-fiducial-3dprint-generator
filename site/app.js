@@ -361,7 +361,8 @@ async function handleExport() {
     state,
     fontRecord: runtime.activeFont,
     uploadLogoRecord: state.uploadLogoRecord,
-    includeGuides: false
+    includeGuides: false,
+    cadCompatibleRoot: true
   });
 
   if (Object.keys(buildBlockingErrors(exportResult.errors)).length > 0) {

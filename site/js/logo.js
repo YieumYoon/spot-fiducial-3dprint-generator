@@ -1,6 +1,8 @@
 import { SVG_NS } from "./config.js";
 import { clearChildren } from "./core.js";
 
+const EDGE_TO_EDGE_LOGO_INSET_MM = 0;
+
 const ALLOWED_ELEMENTS = new Set(["svg", "g", "path", "rect", "circle", "ellipse", "line", "polyline", "polygon"]);
 const ALLOWED_ATTRIBUTES = new Set([
   "viewBox",
@@ -152,6 +154,10 @@ function fitViewBoxIntoSlot(viewBox, slot, inset = 1.05) {
   return `translate(${x.toFixed(4)} ${y.toFixed(4)}) scale(${scale.toFixed(6)})`;
 }
 
+export function fitLogoIntoSlot(viewBox, slot) {
+  return fitViewBoxIntoSlot(viewBox, slot, EDGE_TO_EDGE_LOGO_INSET_MM);
+}
+
 function appendImportedMarkup(targetGroup, markup, transform) {
   const parsed = new DOMParser().parseFromString(markup, "image/svg+xml");
   const sourceRoot = parsed.documentElement;
@@ -172,7 +178,7 @@ export function populateLogoGroup({ targetGroup, templateDocument, slot, logoMod
 
   if (logoMode === "custom") {
     if (uploadRecord) {
-      appendImportedMarkup(targetGroup, uploadRecord.markup, fitViewBoxIntoSlot(uploadRecord.viewBox, slot));
+      appendImportedMarkup(targetGroup, uploadRecord.markup, fitLogoIntoSlot(uploadRecord.viewBox, slot));
       return "Uploaded SVG";
     }
 
@@ -191,7 +197,7 @@ export function populateLogoGroup({ targetGroup, templateDocument, slot, logoMod
     height: 100
   };
   const wrapper = targetGroup.ownerDocument.createElementNS(SVG_NS, "g");
-  wrapper.setAttribute("transform", fitViewBoxIntoSlot(viewBox, slot, 0));
+  wrapper.setAttribute("transform", fitLogoIntoSlot(viewBox, slot));
 
   for (const child of symbol.childNodes) {
     if (child.nodeType === Node.ELEMENT_NODE) {

@@ -4,6 +4,11 @@ import { populateLogoGroup } from "./logo.js";
 import { buildTextPath } from "./text.js";
 import { TAG_DEFINITIONS, TAG_GRID_SIZE } from "../data/tag36h11.js";
 
+const SVG_IMPORT_DPI = 96;
+const MM_PER_INCH = 25.4;
+const SVG_PX_PER_MM = SVG_IMPORT_DPI / MM_PER_INCH;
+const STATIC_ROOT_TAGS = new Set(["title", "desc", "metadata", "defs"]);
+
 function parseTemplate(templateText) {
   const document = new DOMParser().parseFromString(templateText, "image/svg+xml");
   const parserError = document.querySelector("parsererror");
@@ -84,12 +89,53 @@ function appendGuideLayer(document, slots) {
   document.documentElement.appendChild(guideGroup);
 }
 
+export function mmToSvgPixels(lengthMm) {
+  return lengthMm * SVG_PX_PER_MM;
+}
+
+export function formatSvgNumber(value, fractionDigits = 4) {
+  return Number.parseFloat(value.toFixed(fractionDigits)).toString();
+}
+
+export function buildCadCompatibleRootAttributes({ width, height }) {
+  return {
+    width: `${formatSvgNumber(width)}mm`,
+    height: `${formatSvgNumber(height)}mm`,
+    viewBox: `0 0 ${formatSvgNumber(mmToSvgPixels(width))} ${formatSvgNumber(mmToSvgPixels(height))}`
+  };
+}
+
+function normalizeSvgForCadExport(document, metadata) {
+  const root = document.documentElement;
+  const geometryRoot = document.createElementNS(SVG_NS, "g");
+
+  // Some CAD importers treat SVG user units as 96 dpi pixels instead of honoring `mm`.
+  geometryRoot.setAttribute("id", "export-geometry-root");
+  geometryRoot.setAttribute("transform", `scale(${formatSvgNumber(SVG_PX_PER_MM, 6)})`);
+
+  for (const child of Array.from(root.childNodes)) {
+    if (child.nodeType !== 1 || STATIC_ROOT_TAGS.has(child.nodeName)) {
+      continue;
+    }
+
+    geometryRoot.appendChild(child);
+  }
+
+  root.appendChild(geometryRoot);
+
+  const rootAttributes = buildCadCompatibleRootAttributes(metadata.plate);
+  root.setAttribute("width", rootAttributes.width);
+  root.setAttribute("height", rootAttributes.height);
+  root.setAttribute("viewBox", rootAttributes.viewBox);
+}
+
 export function composeSvg({
   templateText,
   state,
   fontRecord,
   uploadLogoRecord = null,
-  includeGuides = false
+  includeGuides = false,
+  cadCompatibleRoot = false
 }) {
   const { document, metadata } = parseTemplate(templateText);
   const errors = {};
@@ -169,6 +215,10 @@ export function composeSvg({
 
   if (includeGuides) {
     appendGuideLayer(document, metadata.slots);
+  }
+
+  if (cadCompatibleRoot) {
+    normalizeSvgForCadExport(document, metadata);
   }
 
   const serialized = new XMLSerializer().serializeToString(document.documentElement);
