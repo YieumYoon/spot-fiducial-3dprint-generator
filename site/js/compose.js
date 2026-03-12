@@ -39,6 +39,222 @@ function appendPath(group, id, pathData, attributes) {
   group.appendChild(path);
 }
 
+function buildCellKey(x, y) {
+  return `${x},${y}`;
+}
+
+function buildPointKey(point) {
+  return `${point.x},${point.y}`;
+}
+
+function parsePointKey(key) {
+  const [x, y] = key.split(",").map(Number);
+  return { x, y };
+}
+
+function buildEdgeKey(start, end) {
+  return `${buildPointKey(start)}>${buildPointKey(end)}`;
+}
+
+function sortCells(cells) {
+  return [...cells].sort(([ax, ay], [bx, by]) => {
+    if (ay !== by) {
+      return ay - by;
+    }
+
+    return ax - bx;
+  });
+}
+
+function collectOrthogonalComponents(cells) {
+  const remaining = new Set(cells.map(([x, y]) => buildCellKey(x, y)));
+  const components = [];
+
+  for (const [x, y] of sortCells(cells)) {
+    const startKey = buildCellKey(x, y);
+    if (!remaining.has(startKey)) {
+      continue;
+    }
+
+    const component = [];
+    const stack = [[x, y]];
+    remaining.delete(startKey);
+
+    while (stack.length > 0) {
+      const [currentX, currentY] = stack.pop();
+      component.push([currentX, currentY]);
+
+      for (const [nextX, nextY] of [
+        [currentX, currentY - 1],
+        [currentX + 1, currentY],
+        [currentX, currentY + 1],
+        [currentX - 1, currentY]
+      ]) {
+        const nextKey = buildCellKey(nextX, nextY);
+        if (!remaining.has(nextKey)) {
+          continue;
+        }
+
+        remaining.delete(nextKey);
+        stack.push([nextX, nextY]);
+      }
+    }
+
+    components.push(sortCells(component));
+  }
+
+  return components;
+}
+
+function simplifyLoop(points) {
+  const ring = points.slice(0, -1);
+
+  if (ring.length <= 4) {
+    return ring;
+  }
+
+  return ring.filter((point, index) => {
+    const previous = ring[(index - 1 + ring.length) % ring.length];
+    const next = ring[(index + 1) % ring.length];
+    const vertical = previous.x === point.x && point.x === next.x;
+    const horizontal = previous.y === point.y && point.y === next.y;
+    return !(vertical || horizontal);
+  });
+}
+
+function getEdgeDirection(start, end) {
+  if (end.x > start.x) {
+    return "E";
+  }
+
+  if (end.x < start.x) {
+    return "W";
+  }
+
+  if (end.y > start.y) {
+    return "S";
+  }
+
+  return "N";
+}
+
+function buildDirectionPreference(direction) {
+  const directions = ["E", "S", "W", "N"];
+  const index = directions.indexOf(direction);
+
+  return [
+    directions[(index + 1) % directions.length],
+    direction,
+    directions[(index + directions.length - 1) % directions.length],
+    directions[(index + 2) % directions.length]
+  ];
+}
+
+function buildComponentLoops(component) {
+  const componentSet = new Set(component.map(([x, y]) => buildCellKey(x, y)));
+  const edges = new Map();
+  const addEdge = (start, end) => {
+    const startKey = buildPointKey(start);
+    const outgoing = edges.get(startKey) ?? [];
+    outgoing.push(end);
+    edges.set(startKey, outgoing);
+  };
+
+  for (const [x, y] of component) {
+    if (!componentSet.has(buildCellKey(x, y - 1))) {
+      addEdge({ x, y }, { x: x + 1, y });
+    }
+
+    if (!componentSet.has(buildCellKey(x + 1, y))) {
+      addEdge({ x: x + 1, y }, { x: x + 1, y: y + 1 });
+    }
+
+    if (!componentSet.has(buildCellKey(x, y + 1))) {
+      addEdge({ x: x + 1, y: y + 1 }, { x, y: y + 1 });
+    }
+
+    if (!componentSet.has(buildCellKey(x - 1, y))) {
+      addEdge({ x, y: y + 1 }, { x, y });
+    }
+  }
+
+  const loops = [];
+  const usedEdges = new Set();
+  const findNextUnusedEdge = () => {
+    for (const [startKey, outgoing] of edges.entries()) {
+      const startPoint = parsePointKey(startKey);
+      for (const endPoint of outgoing) {
+        if (!usedEdges.has(buildEdgeKey(startPoint, endPoint))) {
+          return [startPoint, endPoint];
+        }
+      }
+    }
+
+    return null;
+  };
+
+  while (true) {
+    const startEdge = findNextUnusedEdge();
+    if (!startEdge) {
+      break;
+    }
+
+    const [startPoint, initialEndPoint] = startEdge;
+    const loop = [startPoint];
+    let currentStart = startPoint;
+    let currentEnd = initialEndPoint;
+
+    while (true) {
+      usedEdges.add(buildEdgeKey(currentStart, currentEnd));
+      loop.push(currentEnd);
+
+      if (buildPointKey(currentEnd) === buildPointKey(startPoint)) {
+        break;
+      }
+
+      const outgoing = edges.get(buildPointKey(currentEnd)) ?? [];
+      const candidates = outgoing.filter((point) => !usedEdges.has(buildEdgeKey(currentEnd, point)));
+      if (candidates.length === 0) {
+        throw new Error("AprilTag outline generation produced an open boundary.");
+      }
+
+      const directionPreference = buildDirectionPreference(getEdgeDirection(currentStart, currentEnd));
+      candidates.sort((left, right) => {
+        const leftDirection = getEdgeDirection(currentEnd, left);
+        const rightDirection = getEdgeDirection(currentEnd, right);
+        return directionPreference.indexOf(leftDirection) - directionPreference.indexOf(rightDirection);
+      });
+
+      currentStart = currentEnd;
+      [currentEnd] = candidates;
+    }
+
+    loops.push(simplifyLoop(loop));
+  }
+
+  return loops;
+}
+
+function buildPathDataFromLoops(loops, { originX = 0, originY = 0, cellSize = 1 } = {}) {
+  return loops.map((loop) => {
+    const commands = loop.map((point, index) => {
+      const command = index === 0 ? "M" : "L";
+      const x = formatSvgNumber(originX + point.x * cellSize);
+      const y = formatSvgNumber(originY + point.y * cellSize);
+      return `${command} ${x} ${y}`;
+    });
+
+    return `${commands.join(" ")} Z`;
+  }).join(" ");
+}
+
+export function buildMergedCellPaths(cells, { originX = 0, originY = 0, cellSize = 1 } = {}) {
+  return collectOrthogonalComponents(cells).map((component) => {
+    const loops = buildComponentLoops(component);
+    return buildPathDataFromLoops(loops, { originX, originY, cellSize });
+  });
+}
+
 function populateApriltag(document, tagBox, tagId) {
   const tagGroup = document.querySelector("#apriltag-black");
   clearChildren(tagGroup);
@@ -49,14 +265,17 @@ function populateApriltag(document, tagBox, tagId) {
   }
 
   const cellSize = tagBox.width / TAG_GRID_SIZE;
-  for (const [x, y] of blackCells) {
-    const cell = document.createElementNS(SVG_NS, "rect");
-    cell.setAttribute("x", `${tagBox.x + x * cellSize}`);
-    cell.setAttribute("y", `${tagBox.y + y * cellSize}`);
-    cell.setAttribute("width", `${cellSize}`);
-    cell.setAttribute("height", `${cellSize}`);
-    cell.setAttribute("fill", "#111111");
-    tagGroup.appendChild(cell);
+  const mergedPaths = buildMergedCellPaths(blackCells, {
+    originX: tagBox.x,
+    originY: tagBox.y,
+    cellSize
+  });
+
+  for (const [index, pathData] of mergedPaths.entries()) {
+    appendPath(tagGroup, `apriltag-black-${index + 1}`, pathData, {
+      fill: "#111111",
+      "fill-rule": "evenodd"
+    });
   }
 }
 
