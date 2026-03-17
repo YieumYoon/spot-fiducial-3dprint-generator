@@ -1,4 +1,5 @@
 import { DEFAULT_STATE, DRILL_PRESETS, FALLBACK_FONT_OPTION, FONT_OPTIONS, TAG_RANGE } from "./js/config.js";
+import { trackEvent } from "./js/analytics.js";
 import { composeSvg } from "./js/compose.js";
 import { formatTagId, getFontOption } from "./js/core.js";
 import { sanitizeUploadedLogo } from "./js/logo.js";
@@ -75,10 +76,30 @@ const runtime = {
   fontError: "",
   logoError: "",
   fontLoading: false,
+  hasTrackedGeneratorStart: false,
   attemptedExport: false,
   touched: new Set(),
   lastBlockingKeys: []
 };
+
+function buildAnalyticsPayload(extraParams = {}) {
+  return {
+    drill_preset: state.drillPreset,
+    font_family: state.fontFamily,
+    logo_mode: state.logoMode,
+    tag_id: state.tagId,
+    ...extraParams
+  };
+}
+
+function trackGeneratorStart() {
+  if (runtime.hasTrackedGeneratorStart) {
+    return;
+  }
+
+  runtime.hasTrackedGeneratorStart = true;
+  trackEvent("generator_started", buildAnalyticsPayload());
+}
 
 function syncLogoUi() {
   const isCustom = state.logoMode === "custom";
@@ -344,6 +365,7 @@ async function handleLogoUpload() {
 
   try {
     state.uploadLogoRecord = sanitizeUploadedLogo(await file.text());
+    trackEvent("logo_uploaded", buildAnalyticsPayload({ file_name: file.name }));
   } catch (error) {
     state.uploadLogoRecord = null;
     runtime.logoError = "Uploaded logo is not a valid SVG file.";
@@ -356,6 +378,7 @@ async function handleLogoUpload() {
 async function handleExport(exportTarget) {
   readStateFromForm();
   runtime.attemptedExport = true;
+  trackGeneratorStart();
   render();
 
   if (exportButtons.some((button) => button.disabled)) {
@@ -379,6 +402,7 @@ async function handleExport(exportTarget) {
   }
 
   downloadSvg(exportResult.filename, exportResult.svgText);
+  trackEvent(exportTarget === "print" ? "export_print_svg" : "export_cad_svg", buildAnalyticsPayload({ export_type: exportTarget }));
 }
 
 async function init() {
@@ -394,6 +418,7 @@ async function init() {
 
   dom.form.addEventListener("input", (event) => {
     markFieldTouched(event.target);
+    trackGeneratorStart();
     readStateFromForm();
     syncLogoUi();
     if (event.target === dom.fontFamily) {
@@ -405,6 +430,7 @@ async function init() {
 
   dom.form.addEventListener("change", async (event) => {
     markFieldTouched(event.target);
+    trackGeneratorStart();
     if (event.target === dom.fontFamily) {
       await handleFontSelection();
       return;

@@ -1,0 +1,44 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" rx="32" fill="#EDF2F7" />
+  <path d="M0 0H1200V630H0V0Z" fill="url(#paint0_radial)" fill-opacity="0.9" />
+  <rect x="74" y="74" width="1052" height="482" rx="30" fill="white" fill-opacity="0.84" stroke="white" stroke-opacity="0.6" />
+  <rect x="118" y="136" width="544" height="34" rx="17" fill="#E0F2FE" />
+  <text fill="#475569" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="4.4" x="142" y="159">
+    BOSTON DYNAMICS SPOT
+  </text>
+  <text fill="#0F172A" font-family="Arial, sans-serif" font-size="62" font-weight="700" x="118" y="248">
+    Spot Fiducial AprilTag
+  </text>
+  <text fill="#0F172A" font-family="Arial, sans-serif" font-size="62" font-weight="700" x="118" y="320">
+    Plate Generator
+  </text>
+  <text fill="#56657A" font-family="Arial, sans-serif" font-size="28" x="118" y="388">
+    Live preview, validated IDs, optional logo upload,
+  </text>
+  <text fill="#56657A" font-family="Arial, sans-serif" font-size="28" x="118" y="428">
+    and clean SVG export for print or CAD workflows.
+  </text>
+  <rect x="783" y="124" width="270" height="328" rx="24" fill="#F8FAFC" stroke="#CBD5E1" />
+  <rect x="822" y="162" width="192" height="192" rx="18" fill="#0F172A" />
+  <rect x="846" y="186" width="32" height="32" fill="white" />
+  <rect x="910" y="186" width="32" height="32" fill="white" />
+  <rect x="942" y="186" width="32" height="32" fill="white" />
+  <rect x="846" y="218" width="32" height="32" fill="white" />
+  <rect x="974" y="218" width="32" height="32" fill="white" />
+  <rect x="846" y="250" width="32" height="32" fill="white" />
+  <rect x="878" y="250" width="32" height="32" fill="white" />
+  <rect x="942" y="250" width="32" height="32" fill="white" />
+  <rect x="846" y="282" width="32" height="32" fill="white" />
+  <rect x="910" y="282" width="32" height="32" fill="white" />
+  <rect x="974" y="282" width="32" height="32" fill="white" />
+  <rect x="822" y="386" width="192" height="20" rx="10" fill="#CBD5E1" />
+  <rect x="822" y="418" width="140" height="18" rx="9" fill="#E2E8F0" />
+  <circle cx="1052" cy="160" r="42" fill="#F97316" fill-opacity="0.14" />
+  <circle cx="1048" cy="156" r="22" fill="#F97316" />
+  <defs>
+    <radialGradient id="paint0_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(92 40) rotate(35.7499) scale(948.724 711.338)">
+      <stop stop-color="#BFDBFE" stop-opacity="0.72" />
+      <stop offset="1" stop-color="#EDF2F7" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+</svg>

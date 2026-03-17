@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://yieumyoon.github.io/spot-fiducial-3dprint-generator/sitemap.xml
