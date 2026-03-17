@@ -1,7 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { buildCadCompatibleRootAttributes, buildMergedCellPaths, mmToSvgPixels } from "../site/js/compose.js";
+import {
+  buildCadCompatibleRootAttributes,
+  buildMergedCellPaths,
+  buildPrintRootAttributes,
+  mmToSvgPixels
+} from "../site/js/compose.js";
 
 test("mmToSvgPixels converts millimeters into SVG 96 dpi user units", () => {
   assert.equal(Number(mmToSvgPixels(146).toFixed(4)), 551.811);
@@ -17,6 +22,25 @@ test("buildCadCompatibleRootAttributes preserves physical mm size with a pixel v
       viewBox: "0 0 689.7638 793.2283"
     }
   );
+});
+
+test("buildPrintRootAttributes preserves millimeter root dimensions for print workflows", () => {
+  assert.deepEqual(
+    buildPrintRootAttributes({ width: 182.5, height: 209.875 }),
+    {
+      width: "182.5mm",
+      height: "209.875mm",
+      viewBox: "0 0 182.5 209.875"
+    }
+  );
+});
+
+test("print and cad root attributes preserve the same physical plate size", () => {
+  const printRoot = buildPrintRootAttributes({ width: 182.5, height: 209.875 });
+  const cadRoot = buildCadCompatibleRootAttributes({ width: 182.5, height: 209.875 });
+
+  assert.equal(printRoot.width, cadRoot.width);
+  assert.equal(printRoot.height, cadRoot.height);
 });
 
 test("buildMergedCellPaths collapses connected cells into a shared outline", () => {

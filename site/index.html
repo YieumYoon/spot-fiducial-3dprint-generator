@@ -126,9 +126,17 @@
             <section class="panel-card export-card">
               <h2>Export</h2>
               <div class="banner" id="global-message" role="status" aria-live="polite" aria-atomic="true"></div>
-              <button class="primary-button" id="export-button" type="button" aria-describedby="global-message">
-                Download SVG
-              </button>
+              <p class="export-copy">
+                Use Print SVG for PDF conversion and paper output. Use CAD SVG when your CAD importer expects 96 dpi SVG units.
+              </p>
+              <div class="export-actions">
+                <button class="primary-button" id="export-print-button" type="button" aria-describedby="global-message">
+                  Download Print SVG
+                </button>
+                <button class="ghost-button" id="export-cad-button" type="button" aria-describedby="global-message">
+                  Download CAD SVG
+                </button>
+              </div>
             </section>
           </form>
         </aside>

@@ -510,6 +510,29 @@ input[type="file"]:focus {
   font-size: 1.06rem;
 }
 
+.export-copy {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.export-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.export-actions .ghost-button,
+.export-actions .primary-button {
+  width: 100%;
+  justify-self: stretch;
+  text-align: center;
+}
+
+.export-actions .ghost-button {
+  min-height: 46px;
+}
+
 .banner {
   min-height: 58px;
   padding: 15px 16px;

@@ -4,7 +4,7 @@ Static browser application for generating fabrication-ready SVG fiducial plates 
 
 ## Overview
 
-This repository contains a fixed-template generator for Spot fiducial plates built around the `tag36h11` AprilTag family. Users can choose a supported tag ID, set company and robot names, pick a drill-hole preset, choose a bundled font, optionally use a built-in logo or upload a custom SVG logo, and export the final plate as a production SVG.
+This repository contains a fixed-template generator for Spot fiducial plates built around the `tag36h11` AprilTag family. Users can choose a supported tag ID, set company and robot names, pick a drill-hole preset, choose a bundled font, optionally use a built-in logo or upload a custom SVG logo, and export either a print-safe SVG or a CAD-safe SVG.
 
 The exported file preserves the project’s fixed geometry and produces a clean fabrication asset rather than a generic preview graphic.
 
@@ -17,17 +17,23 @@ The exported file preserves the project’s fixed geometry and produces a clean 
 - Supports a built-in default logo, an empty logo state, or a sanitized uploaded SVG logo.
 - Applies a single drill-hole preset to all four corners while preserving fixed hole centers.
 - Shows live browser preview guides while keeping exported SVGs fabrication-clean.
+- Provides separate print-safe and CAD-safe SVG downloads for PDF/printing and CAD import workflows.
 - Runs fully client-side and is deployable as a static GitHub Pages site.
 
 ## Export Output
 
-Each generated SVG is intended to be directly usable in CAD or manufacturing preparation workflows. The export preserves:
+Each generated SVG is intended to be directly usable in print, PDF, CAD, or manufacturing preparation workflows. Both export variants preserve:
 
 - plate size `182.5 mm × 209.875 mm`
 - fixed AprilTag placement and geometry
 - fixed slot layout for text and logo
 - named SVG groups for downstream editing
 - outlined text geometry instead of live text nodes
+
+Export variants:
+
+- `Print SVG` keeps the root SVG in millimeter units with a millimeter `viewBox`, which makes SVG-to-PDF conversion and browser printing preserve the intended physical size.
+- `CAD SVG` keeps the existing CAD-normalized root, using 96 dpi SVG user units under the hood while preserving millimeter `width` and `height` for importers that expect pixel-based SVG coordinates.
 
 ## Tech Stack
 

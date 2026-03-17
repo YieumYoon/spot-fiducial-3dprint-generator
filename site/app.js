@@ -7,7 +7,8 @@ import { ensureFont } from "./js/text.js";
 const dom = {
   form: document.querySelector("#generator-form"),
   previewRoot: document.querySelector("#preview-root"),
-  exportButton: document.querySelector("#export-button"),
+  printExportButton: document.querySelector("#export-print-button"),
+  cadExportButton: document.querySelector("#export-cad-button"),
   clearLogoButton: document.querySelector("#clear-logo-upload"),
   logoUploadField: document.querySelector("#logo-upload-field"),
   logoModeField: document.querySelector("#logo-mode-field"),
@@ -30,6 +31,7 @@ const dom = {
 };
 
 dom.logoModeInputs = Array.from(dom.form.querySelectorAll('input[name="logoMode"]'));
+const exportButtons = [dom.printExportButton, dom.cadExportButton];
 
 const validationTargets = {
   companyName: [dom.companyName],
@@ -260,7 +262,8 @@ function render() {
     state,
     fontRecord: runtime.activeFont,
     uploadLogoRecord: state.uploadLogoRecord,
-    includeGuides: true
+    includeGuides: true,
+    exportTarget: "print"
   });
 
   dom.previewRoot.innerHTML = previewResult.svgText;
@@ -286,7 +289,11 @@ function render() {
 
   const blockingErrors = blockingEntries.map(([, message]) => message);
   const hasInteracted = runtime.attemptedExport || runtime.touched.size > 0;
-  dom.exportButton.disabled = runtime.fontLoading || blockingErrors.length > 0;
+  const exportBlocked = runtime.fontLoading || blockingErrors.length > 0;
+
+  for (const button of exportButtons) {
+    button.disabled = exportBlocked;
+  }
 
   if (blockingErrors.length > 0) {
     if (hasInteracted) {
@@ -299,10 +306,10 @@ function render() {
     }
   } else if (runtime.fontError) {
     setStatus("Export ready", "ready");
-    setGlobalMessage(runtime.fontError, "ready");
+    setGlobalMessage(`${runtime.fontError} Use Print SVG for PDF conversion and CAD SVG for CAD imports.`, "ready");
   } else {
     setStatus("Export ready", "ready");
-    setGlobalMessage(`Ready to export ${previewResult.filename}. Preview guides stay on-screen only.`, "ready");
+    setGlobalMessage("Ready to download Print SVG for PDF conversion or CAD SVG for CAD import. Preview guides stay on-screen only.", "ready");
   }
 }
 
@@ -346,12 +353,12 @@ async function handleLogoUpload() {
   render();
 }
 
-async function handleExport() {
+async function handleExport(exportTarget) {
   readStateFromForm();
   runtime.attemptedExport = true;
   render();
 
-  if (dom.exportButton.disabled) {
+  if (exportButtons.some((button) => button.disabled)) {
     focusFirstBlockingField();
     return;
   }
@@ -362,7 +369,7 @@ async function handleExport() {
     fontRecord: runtime.activeFont,
     uploadLogoRecord: state.uploadLogoRecord,
     includeGuides: false,
-    cadCompatibleRoot: true
+    exportTarget
   });
 
   if (Object.keys(buildBlockingErrors(exportResult.errors)).length > 0) {
@@ -423,7 +430,8 @@ async function init() {
     render();
   });
 
-  dom.exportButton.addEventListener("click", handleExport);
+  dom.printExportButton.addEventListener("click", () => handleExport("print"));
+  dom.cadExportButton.addEventListener("click", () => handleExport("cad"));
 }
 
 init().catch((error) => {

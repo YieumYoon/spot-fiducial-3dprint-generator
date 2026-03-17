@@ -8,6 +8,8 @@ const SVG_IMPORT_DPI = 96;
 const MM_PER_INCH = 25.4;
 const SVG_PX_PER_MM = SVG_IMPORT_DPI / MM_PER_INCH;
 const STATIC_ROOT_TAGS = new Set(["title", "desc", "metadata", "defs"]);
+const EXPORT_TARGET_PRINT = "print";
+const EXPORT_TARGET_CAD = "cad";
 
 function parseTemplate(templateText) {
   const document = new DOMParser().parseFromString(templateText, "image/svg+xml");
@@ -316,12 +318,24 @@ export function formatSvgNumber(value, fractionDigits = 4) {
   return Number.parseFloat(value.toFixed(fractionDigits)).toString();
 }
 
+export function buildPrintRootAttributes({ width, height }) {
+  return {
+    width: `${formatSvgNumber(width)}mm`,
+    height: `${formatSvgNumber(height)}mm`,
+    viewBox: `0 0 ${formatSvgNumber(width)} ${formatSvgNumber(height)}`
+  };
+}
+
 export function buildCadCompatibleRootAttributes({ width, height }) {
   return {
     width: `${formatSvgNumber(width)}mm`,
     height: `${formatSvgNumber(height)}mm`,
     viewBox: `0 0 ${formatSvgNumber(mmToSvgPixels(width))} ${formatSvgNumber(mmToSvgPixels(height))}`
   };
+}
+
+function normalizeExportTarget(exportTarget) {
+  return exportTarget === EXPORT_TARGET_CAD ? EXPORT_TARGET_CAD : EXPORT_TARGET_PRINT;
 }
 
 function normalizeSvgForCadExport(document, metadata) {
@@ -354,9 +368,10 @@ export function composeSvg({
   fontRecord,
   uploadLogoRecord = null,
   includeGuides = false,
-  cadCompatibleRoot = false
+  exportTarget = EXPORT_TARGET_PRINT
 }) {
   const { document, metadata } = parseTemplate(templateText);
+  const resolvedExportTarget = normalizeExportTarget(exportTarget);
   const errors = {};
   const safeTagId = isValidTagId(state.tagId) ? formatTagId(state.tagId) : "001";
   const safeDrillPreset = getDrillPreset(state.drillPreset) ?? getDrillPreset("m3");
@@ -436,8 +451,14 @@ export function composeSvg({
     appendGuideLayer(document, metadata.slots);
   }
 
-  if (cadCompatibleRoot) {
+  if (resolvedExportTarget === EXPORT_TARGET_CAD) {
     normalizeSvgForCadExport(document, metadata);
+  } else {
+    const rootAttributes = buildPrintRootAttributes(metadata.plate);
+    const root = document.documentElement;
+    root.setAttribute("width", rootAttributes.width);
+    root.setAttribute("height", rootAttributes.height);
+    root.setAttribute("viewBox", rootAttributes.viewBox);
   }
 
   const serialized = new XMLSerializer().serializeToString(document.documentElement);
@@ -447,6 +468,6 @@ export function composeSvg({
     metadata,
     errors,
     effectiveLogoMode,
-    filename: buildFilename(state)
+    filename: buildFilename({ ...state, exportTarget: resolvedExportTarget })
   };
 }
