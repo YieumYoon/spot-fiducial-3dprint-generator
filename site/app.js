@@ -1,4 +1,5 @@
 import { DEFAULT_STATE, DRILL_PRESETS, FALLBACK_FONT_OPTION, FONT_OPTIONS, TAG_RANGE } from "./js/config.js";
+import { trackEvent } from "./js/analytics.js";
 import { composeSvg } from "./js/compose.js";
 import { formatTagId, getFontOption } from "./js/core.js";
 import { sanitizeUploadedLogo } from "./js/logo.js";
@@ -7,7 +8,8 @@ import { ensureFont } from "./js/text.js";
 const dom = {
   form: document.querySelector("#generator-form"),
   previewRoot: document.querySelector("#preview-root"),
-  exportButton: document.querySelector("#export-button"),
+  printExportButton: document.querySelector("#export-print-button"),
+  cadExportButton: document.querySelector("#export-cad-button"),
   clearLogoButton: document.querySelector("#clear-logo-upload"),
   logoUploadField: document.querySelector("#logo-upload-field"),
   logoModeField: document.querySelector("#logo-mode-field"),
@@ -30,6 +32,7 @@ const dom = {
 };
 
 dom.logoModeInputs = Array.from(dom.form.querySelectorAll('input[name="logoMode"]'));
+const exportButtons = [dom.printExportButton, dom.cadExportButton];
 
 const validationTargets = {
   companyName: [dom.companyName],
@@ -73,10 +76,30 @@ const runtime = {
   fontError: "",
   logoError: "",
   fontLoading: false,
+  hasTrackedGeneratorStart: false,
   attemptedExport: false,
   touched: new Set(),
   lastBlockingKeys: []
 };
+
+function buildAnalyticsPayload(extraParams = {}) {
+  return {
+    drill_preset: state.drillPreset,
+    font_family: state.fontFamily,
+    logo_mode: state.logoMode,
+    tag_id: state.tagId,
+    ...extraParams
+  };
+}
+
+function trackGeneratorStart() {
+  if (runtime.hasTrackedGeneratorStart) {
+    return;
+  }
+
+  runtime.hasTrackedGeneratorStart = true;
+  trackEvent("generator_started", buildAnalyticsPayload());
+}
 
 function syncLogoUi() {
   const isCustom = state.logoMode === "custom";
@@ -260,7 +283,8 @@ function render() {
     state,
     fontRecord: runtime.activeFont,
     uploadLogoRecord: state.uploadLogoRecord,
-    includeGuides: true
+    includeGuides: true,
+    exportTarget: "print"
   });
 
   dom.previewRoot.innerHTML = previewResult.svgText;
@@ -286,7 +310,11 @@ function render() {
 
   const blockingErrors = blockingEntries.map(([, message]) => message);
   const hasInteracted = runtime.attemptedExport || runtime.touched.size > 0;
-  dom.exportButton.disabled = runtime.fontLoading || blockingErrors.length > 0;
+  const exportBlocked = runtime.fontLoading || blockingErrors.length > 0;
+
+  for (const button of exportButtons) {
+    button.disabled = exportBlocked;
+  }
 
   if (blockingErrors.length > 0) {
     if (hasInteracted) {
@@ -299,10 +327,10 @@ function render() {
     }
   } else if (runtime.fontError) {
     setStatus("Export ready", "ready");
-    setGlobalMessage(runtime.fontError, "ready");
+    setGlobalMessage(`${runtime.fontError} Use Print SVG for PDF conversion and CAD SVG for CAD imports.`, "ready");
   } else {
     setStatus("Export ready", "ready");
-    setGlobalMessage(`Ready to export ${previewResult.filename}. Preview guides stay on-screen only.`, "ready");
+    setGlobalMessage("Ready to download Print SVG for PDF conversion or CAD SVG for CAD import. Preview guides stay on-screen only.", "ready");
   }
 }
 
@@ -337,6 +365,7 @@ async function handleLogoUpload() {
 
   try {
     state.uploadLogoRecord = sanitizeUploadedLogo(await file.text());
+    trackEvent("logo_uploaded", buildAnalyticsPayload({ file_name: file.name }));
   } catch (error) {
     state.uploadLogoRecord = null;
     runtime.logoError = "Uploaded logo is not a valid SVG file.";
@@ -346,12 +375,13 @@ async function handleLogoUpload() {
   render();
 }
 
-async function handleExport() {
+async function handleExport(exportTarget) {
   readStateFromForm();
   runtime.attemptedExport = true;
+  trackGeneratorStart();
   render();
 
-  if (dom.exportButton.disabled) {
+  if (exportButtons.some((button) => button.disabled)) {
     focusFirstBlockingField();
     return;
   }
@@ -362,7 +392,7 @@ async function handleExport() {
     fontRecord: runtime.activeFont,
     uploadLogoRecord: state.uploadLogoRecord,
     includeGuides: false,
-    cadCompatibleRoot: true
+    exportTarget
   });
 
   if (Object.keys(buildBlockingErrors(exportResult.errors)).length > 0) {
@@ -372,6 +402,7 @@ async function handleExport() {
   }
 
   downloadSvg(exportResult.filename, exportResult.svgText);
+  trackEvent(exportTarget === "print" ? "export_print_svg" : "export_cad_svg", buildAnalyticsPayload({ export_type: exportTarget }));
 }
 
 async function init() {
@@ -387,6 +418,7 @@ async function init() {
 
   dom.form.addEventListener("input", (event) => {
     markFieldTouched(event.target);
+    trackGeneratorStart();
     readStateFromForm();
     syncLogoUi();
     if (event.target === dom.fontFamily) {
@@ -398,6 +430,7 @@ async function init() {
 
   dom.form.addEventListener("change", async (event) => {
     markFieldTouched(event.target);
+    trackGeneratorStart();
     if (event.target === dom.fontFamily) {
       await handleFontSelection();
       return;
@@ -423,7 +456,8 @@ async function init() {
     render();
   });
 
-  dom.exportButton.addEventListener("click", handleExport);
+  dom.printExportButton.addEventListener("click", () => handleExport("print"));
+  dom.cadExportButton.addEventListener("click", () => handleExport("cad"));
 }
 
 init().catch((error) => {

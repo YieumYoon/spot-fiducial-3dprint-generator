@@ -3,136 +3,273 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f8fafc" />
     <title>Spot Fiducial AprilTag Plate Generator</title>
+    <meta name="robots" content="index,follow" />
     <meta
       name="description"
-      content="Generate fabrication-ready Spot fiducial SVG plates with AprilTag, fitted text, and validated drill presets."
+      content="Generate fabrication-ready Spot fiducial SVG plates with a fixed 146 mm AprilTag size for Spot fiducial requirements."
     />
+    <meta name="google-site-verification" content="I_GlhdhlhqkC_PYbhYpQ4j8aqViEKx7WQHZFGkTD8_Q" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Spot Fiducial AprilTag Plate Generator" />
+    <meta
+      property="og:description"
+      content="A static browser tool for generating Spot fiducial plate SVGs with a fixed 146 mm AprilTag size for Spot fiducial requirements."
+    />
+    <meta
+      property="og:image"
+      content="https://yieumyoon.github.io/spot-fiducial-3dprint-generator/assets/social-preview.svg"
+    />
+    <meta property="og:url" content="https://yieumyoon.github.io/spot-fiducial-3dprint-generator/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Spot Fiducial AprilTag Plate Generator" />
+    <meta
+      name="twitter:description"
+      content="Generate Spot fiducial SVG plates with live preview, clean export, and a fixed 146 mm AprilTag size."
+    />
+    <meta
+      name="twitter:image"
+      content="https://yieumyoon.github.io/spot-fiducial-3dprint-generator/assets/social-preview.svg"
+    />
+    <link rel="canonical" href="https://yieumyoon.github.io/spot-fiducial-3dprint-generator/" />
     <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="shortcut icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="stylesheet" href="./styles.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Spot Fiducial AprilTag Plate Generator",
+        "applicationCategory": "DesignApplication",
+        "operatingSystem": "Web",
+        "creator": {
+          "@type": "Person",
+          "name": "Yieum Yoon"
+        },
+        "description": "Generate fabrication-ready Spot fiducial SVG plates with a fixed 146 mm AprilTag size for Spot fiducial requirements.",
+        "url": "https://yieumyoon.github.io/spot-fiducial-3dprint-generator/"
+      }
+    </script>
     <script src="./vendor/opentype.js"></script>
+    <script type="module" src="./js/public-site.js"></script>
     <script type="module" src="./app.js"></script>
   </head>
-  <body>
-    <div class="app-shell">
-      <main class="layout">
-        <section class="preview-panel" aria-labelledby="page-title">
-          <header class="preview-header">
-            <div class="title-block">
-              <h1 id="page-title">Spot Fiducial plate generator</h1>
-              <p class="section-copy">Live preview, validated inputs, clean SVG export.</p>
-            </div>
+  <body data-page="home">
+    <div class="site-shell">
+      <header class="site-header">
+        <a class="site-brand" href="./">Spot Fiducial</a>
+        <nav class="site-nav" aria-label="Primary">
+          <a href="./about.html">About</a>
+          <a
+            href="https://github.com/YieumYoon/spot-fiducial-3dprint-generator"
+            target="_blank"
+            rel="noreferrer"
+            data-analytics-event="github_clicked"
+            data-analytics-label="header_repo"
+          >
+            GitHub
+          </a>
+          <a href="./privacy.html">Privacy</a>
+          <a href="./license.html">License</a>
+        </nav>
+      </header>
 
-            <div class="status-chip" id="status-chip" role="status" aria-live="polite" aria-atomic="true">
-              Loading assets
-            </div>
-          </header>
-
-          <div class="preview-frame">
-            <div class="preview-svg-wrap" id="preview-root"></div>
-          </div>
-        </section>
-
-        <aside class="control-panel">
-          <form id="generator-form" class="control-form" novalidate>
-            <section class="panel-card control-card">
-              <section class="panel-section">
-                <h2>Plate</h2>
-
-                <div class="field-grid">
-                  <label class="field field-half">
-                    <span class="field-label">Company name</span>
-                    <input
-                      id="company-name"
-                      name="companyName"
-                      type="text"
-                      maxlength="28"
-                      placeholder="Company"
-                      aria-describedby="company-name-message"
-                    />
-                    <small class="field-message" id="company-name-message"></small>
-                  </label>
-
-                  <label class="field field-half">
-                    <span class="field-label">Robot name</span>
-                    <input
-                      id="robot-name"
-                      name="robotName"
-                      type="text"
-                      maxlength="28"
-                      placeholder="Spot"
-                      aria-describedby="robot-name-message"
-                    />
-                    <small class="field-message" id="robot-name-message"></small>
-                  </label>
-
-                  <label class="field field-third">
-                    <span class="field-label">AprilTag ID</span>
-                    <select id="tag-id" name="tagId" aria-describedby="tag-id-message"></select>
-                    <small class="field-message" id="tag-id-message"></small>
-                  </label>
-
-                  <label class="field field-third">
-                    <span class="field-label">Font family</span>
-                    <select id="font-family" name="fontFamily" aria-describedby="font-family-message"></select>
-                    <small class="field-message" id="font-family-message"></small>
-                  </label>
-
-                  <label class="field field-third">
-                    <span class="field-label">Drill-hole preset</span>
-                    <select id="drill-preset" name="drillPreset" aria-describedby="drill-preset-message"></select>
-                    <small class="field-message" id="drill-preset-message"></small>
-                  </label>
+      <main class="site-main">
+        <div class="app-shell">
+          <div class="layout">
+            <section class="preview-panel" aria-labelledby="site-title">
+              <header class="preview-header">
+                <div class="title-block">
+                  <p class="eyebrow">Boston Dynamics Spot</p>
+                  <h1 id="site-title">Spot Fiducial AprilTag Plate Generator</h1>
+                  <p class="hero-copy">
+                    Generate fabrication-ready SVG plates with validated AprilTag IDs, fitted text, optional logo
+                    upload, and clean export for print or CAD workflows. The AprilTag size stays fixed at 146 mm
+                    for Spot fiducial requirements.
+                  </p>
                 </div>
-              </section>
 
-              <section class="panel-section panel-section-bordered">
-                <h2>Logo</h2>
+                <div class="status-chip" id="status-chip" role="status" aria-live="polite" aria-atomic="true">
+                  Loading assets
+                </div>
+              </header>
 
-                <div class="field radio-group" id="logo-mode-field">
-                  <span class="field-label">Source</span>
-                  <div class="radio-stack">
-                    <label class="radio-option">
-                      <input type="radio" name="logoMode" value="default" checked />
-                      <span class="radio-text">Default</span>
+              <div class="preview-frame">
+                <div class="preview-svg-wrap" id="preview-root"></div>
+              </div>
+            </section>
+
+            <aside class="control-panel">
+              <form id="generator-form" class="control-form" novalidate>
+                <section class="panel-card control-card">
+                  <section class="panel-section">
+                    <h2>Plate</h2>
+
+                    <div class="field-grid">
+                      <label class="field field-half">
+                        <span class="field-label">Company name</span>
+                        <input
+                          id="company-name"
+                          name="companyName"
+                          type="text"
+                          maxlength="28"
+                          placeholder="Company"
+                          aria-describedby="company-name-message"
+                        />
+                        <small class="field-message" id="company-name-message"></small>
+                      </label>
+
+                      <label class="field field-half">
+                        <span class="field-label">Robot name</span>
+                        <input
+                          id="robot-name"
+                          name="robotName"
+                          type="text"
+                          maxlength="28"
+                          placeholder="Spot"
+                          aria-describedby="robot-name-message"
+                        />
+                        <small class="field-message" id="robot-name-message"></small>
+                      </label>
+
+                      <label class="field field-third">
+                        <span class="field-label">AprilTag ID</span>
+                        <select id="tag-id" name="tagId" aria-describedby="tag-id-message"></select>
+                        <small class="field-message" id="tag-id-message"></small>
+                      </label>
+
+                      <label class="field field-third">
+                        <span class="field-label">Font family</span>
+                        <select id="font-family" name="fontFamily" aria-describedby="font-family-message"></select>
+                        <small class="field-message" id="font-family-message"></small>
+                      </label>
+
+                      <label class="field field-third">
+                        <span class="field-label">Drill-hole preset</span>
+                        <select id="drill-preset" name="drillPreset" aria-describedby="drill-preset-message"></select>
+                        <small class="field-message" id="drill-preset-message"></small>
+                      </label>
+                    </div>
+                  </section>
+
+                  <section class="panel-section panel-section-bordered">
+                    <h2>Logo</h2>
+
+                    <div class="field radio-group" id="logo-mode-field">
+                      <span class="field-label">Source</span>
+                      <div class="radio-stack">
+                        <label class="radio-option">
+                          <input type="radio" name="logoMode" value="default" checked />
+                          <span class="radio-text">Default</span>
+                        </label>
+                        <label class="radio-option">
+                          <input type="radio" name="logoMode" value="custom" />
+                          <span class="radio-text">Custom</span>
+                        </label>
+                        <label class="radio-option">
+                          <input type="radio" name="logoMode" value="empty" />
+                          <span class="radio-text">Empty</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <label class="field field-full" id="logo-upload-field" hidden>
+                      <span class="field-label">Custom SVG</span>
+                      <input
+                        id="logo-upload"
+                        name="logoUpload"
+                        type="file"
+                        accept=".svg,image/svg+xml"
+                        aria-describedby="logo-upload-message"
+                      />
+                      <small class="field-message" id="logo-upload-message"></small>
                     </label>
-                    <label class="radio-option">
-                      <input type="radio" name="logoMode" value="custom" />
-                      <span class="radio-text">Custom</span>
-                    </label>
-                    <label class="radio-option">
-                      <input type="radio" name="logoMode" value="empty" />
-                      <span class="radio-text">Empty</span>
-                    </label>
+
+                    <button class="ghost-button" id="clear-logo-upload" type="button" hidden>
+                      Clear uploaded logo
+                    </button>
+                  </section>
+                </section>
+
+                <section class="panel-card export-card">
+                  <h2>Export</h2>
+                  <div class="banner" id="global-message" role="status" aria-live="polite" aria-atomic="true"></div>
+                  <p class="export-copy">
+                    Use Print SVG for PDF conversion and paper output. Use CAD SVG when your CAD importer expects 96
+                    dpi SVG units.
+                  </p>
+                  <div class="export-actions">
+                    <button
+                      class="primary-button"
+                      id="export-print-button"
+                      type="button"
+                      aria-describedby="global-message"
+                    >
+                      Download Print SVG
+                    </button>
+                    <button class="ghost-button" id="export-cad-button" type="button" aria-describedby="global-message">
+                      Download CAD SVG
+                    </button>
                   </div>
-                </div>
+                </section>
+              </form>
+            </aside>
+          </div>
+        </div>
 
-                <label class="field field-full" id="logo-upload-field" hidden>
-                  <span class="field-label">Custom SVG</span>
-                  <input
-                    id="logo-upload"
-                    name="logoUpload"
-                    type="file"
-                    accept=".svg,image/svg+xml"
-                    aria-describedby="logo-upload-message"
-                  />
-                  <small class="field-message" id="logo-upload-message"></small>
-                </label>
+        <section class="content-grid" aria-label="Project details">
+          <article class="content-card">
+            <h2>Why I Built This</h2>
+            <p>
+              I wanted a faster way to make consistent Spot fiducial plates without reopening CAD every time a tag ID,
+              robot name, or logo changed. This tool keeps the template fixed and makes the variable parts quick to
+              update.
+            </p>
+          </article>
 
-                <button class="ghost-button" id="clear-logo-upload" type="button" hidden>Clear uploaded logo</button>
-              </section>
-            </section>
-
-            <section class="panel-card export-card">
-              <h2>Export</h2>
-              <div class="banner" id="global-message" role="status" aria-live="polite" aria-atomic="true"></div>
-              <button class="primary-button" id="export-button" type="button" aria-describedby="global-message">
-                Download SVG
-              </button>
-            </section>
-          </form>
-        </aside>
+          <article class="content-card">
+            <h2>Key Features</h2>
+            <ul class="feature-list">
+              <li>Live SVG preview with fixed Spot plate geometry</li>
+              <li>Validated <code>tag36h11</code> AprilTag IDs from <code>001</code> to <code>586</code></li>
+              <li>Optional built-in, custom, or empty logo handling</li>
+              <li>Separate print-safe and CAD-safe SVG downloads</li>
+            </ul>
+          </article>
+        </section>
       </main>
+
+      <footer class="site-footer">
+        <p class="footer-copy">
+          Built by
+          <a
+            href="https://github.com/YieumYoon"
+            target="_blank"
+            rel="noreferrer"
+            data-analytics-event="contact_clicked"
+            data-analytics-label="footer_profile"
+          >
+            Yieum Yoon
+          </a>
+          .
+        </p>
+        <div class="footer-links">
+          <a
+            href="https://github.com/YieumYoon/spot-fiducial-3dprint-generator"
+            target="_blank"
+            rel="noreferrer"
+            data-analytics-event="github_clicked"
+            data-analytics-label="footer_repo"
+          >
+            Repository
+          </a>
+          <a href="./about.html">About</a>
+          <a href="./privacy.html">Privacy</a>
+          <a href="./license.html">License</a>
+        </div>
+      </footer>
     </div>
   </body>
 </html>

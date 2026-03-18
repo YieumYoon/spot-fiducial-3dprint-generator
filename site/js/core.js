@@ -31,9 +31,10 @@ export function slugifyPart(value, fallback) {
     .toLowerCase() || fallback;
 }
 
-export function buildFilename({ companyName, robotName, tagId }) {
+export function buildFilename({ companyName, robotName, tagId, exportTarget = null }) {
   const displayId = formatTagId(tagId);
-  return `${slugifyPart(companyName, "company")}-${slugifyPart(robotName, "robot")}-tag${displayId}.svg`;
+  const exportSuffix = exportTarget ? `-${exportTarget}` : "";
+  return `${slugifyPart(companyName, "company")}-${slugifyPart(robotName, "robot")}-tag${displayId}${exportSuffix}.svg`;
 }
 
 export function clearChildren(node) {

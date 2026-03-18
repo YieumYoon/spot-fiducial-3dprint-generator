@@ -22,3 +22,14 @@ test("buildFilename sanitizes inputs for export", () => {
     "acme-robotics-spot-17-tag004.svg"
   );
 });
+
+test("buildFilename appends export target suffixes when requested", () => {
+  assert.equal(
+    buildFilename({ companyName: "Acme Robotics", robotName: "Spot / 17", tagId: "004", exportTarget: "print" }),
+    "acme-robotics-spot-17-tag004-print.svg"
+  );
+  assert.equal(
+    buildFilename({ companyName: "Acme Robotics", robotName: "Spot / 17", tagId: "004", exportTarget: "cad" }),
+    "acme-robotics-spot-17-tag004-cad.svg"
+  );
+});
