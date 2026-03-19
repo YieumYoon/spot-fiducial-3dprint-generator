@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f8fafc" />
+    <meta name="theme-color" content="#f5f5f7" />
     <title>Spot Fiducial AprilTag Plate Generator</title>
     <meta name="robots" content="index,follow" />
     <meta
@@ -59,6 +59,11 @@
   <body data-page="home">
     <div class="site-shell">
       <header class="site-header">
+        <div class="window-dots" aria-hidden="true">
+          <span class="window-dot window-dot--close"></span>
+          <span class="window-dot window-dot--minimize"></span>
+          <span class="window-dot window-dot--maximize"></span>
+        </div>
         <a class="site-brand" href="./">Spot Fiducial</a>
         <nav class="site-nav" aria-label="Primary">
           <a href="./about.html">About</a>
@@ -79,28 +84,6 @@
       <main class="site-main">
         <div class="app-shell">
           <div class="layout">
-            <section class="preview-panel" aria-labelledby="site-title">
-              <header class="preview-header">
-                <div class="title-block">
-                  <p class="eyebrow">Boston Dynamics Spot</p>
-                  <h1 id="site-title">Spot Fiducial AprilTag Plate Generator</h1>
-                  <p class="hero-copy">
-                    Generate fabrication-ready SVG plates with validated AprilTag IDs, fitted text, optional logo
-                    upload, and clean export for print or CAD workflows. The AprilTag size stays fixed at 146 mm
-                    for Spot fiducial requirements.
-                  </p>
-                </div>
-
-                <div class="status-chip" id="status-chip" role="status" aria-live="polite" aria-atomic="true">
-                  Loading assets
-                </div>
-              </header>
-
-              <div class="preview-frame">
-                <div class="preview-svg-wrap" id="preview-root"></div>
-              </div>
-            </section>
-
             <aside class="control-panel">
               <form id="generator-form" class="control-form" novalidate>
                 <section class="panel-card control-card">
@@ -108,7 +91,7 @@
                     <h2>Plate</h2>
 
                     <div class="field-grid">
-                      <label class="field field-half">
+                      <label class="field field-full">
                         <span class="field-label">Company name</span>
                         <input
                           id="company-name"
@@ -121,7 +104,7 @@
                         <small class="field-message" id="company-name-message"></small>
                       </label>
 
-                      <label class="field field-half">
+                      <label class="field field-full">
                         <span class="field-label">Robot name</span>
                         <input
                           id="robot-name"
@@ -134,19 +117,19 @@
                         <small class="field-message" id="robot-name-message"></small>
                       </label>
 
-                      <label class="field field-third">
+                      <label class="field field-full">
                         <span class="field-label">AprilTag ID</span>
                         <select id="tag-id" name="tagId" aria-describedby="tag-id-message"></select>
                         <small class="field-message" id="tag-id-message"></small>
                       </label>
 
-                      <label class="field field-third">
+                      <label class="field field-full">
                         <span class="field-label">Font family</span>
                         <select id="font-family" name="fontFamily" aria-describedby="font-family-message"></select>
                         <small class="field-message" id="font-family-message"></small>
                       </label>
 
-                      <label class="field field-third">
+                      <label class="field field-full">
                         <span class="field-label">Drill-hole preset</span>
                         <select id="drill-preset" name="drillPreset" aria-describedby="drill-preset-message"></select>
                         <small class="field-message" id="drill-preset-message"></small>
@@ -216,6 +199,28 @@
                 </section>
               </form>
             </aside>
+
+            <section class="preview-panel" aria-labelledby="site-title">
+              <header class="preview-header">
+                <div class="title-block">
+                  <p class="eyebrow">Boston Dynamics Spot</p>
+                  <h1 id="site-title">Spot Fiducial AprilTag Plate Generator</h1>
+                  <p class="hero-copy">
+                    Generate fabrication-ready SVG plates with validated AprilTag IDs, fitted text, optional logo
+                    upload, and clean export for print or CAD workflows. The AprilTag size stays fixed at 146 mm
+                    for Spot fiducial requirements.
+                  </p>
+                </div>
+
+                <div class="status-chip" id="status-chip" role="status" aria-live="polite" aria-atomic="true">
+                  Loading assets
+                </div>
+              </header>
+
+              <div class="preview-frame">
+                <div class="preview-svg-wrap" id="preview-root"></div>
+              </div>
+            </section>
           </div>
         </div>
 
