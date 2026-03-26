@@ -14,6 +14,7 @@ test("public pages include lean SEO metadata", async () => {
 
     for (const snippet of [
       'name="description"',
+      'name="author"',
       'property="og:title"',
       'property="og:description"',
       'property="og:image"',
@@ -32,6 +33,20 @@ test("homepage includes structured data and verification placeholder", async () 
   assert.match(html, /name="google-site-verification"/);
 });
 
+test("homepage exposes the purpose-first range selector and guide", async () => {
+  const html = await readSiteFile("index.html");
+
+  assert.match(html, /id="tag-range-field"/);
+  assert.match(html, /id="tag-range-options"/);
+  assert.match(html, /id="dock-location-field"/);
+  assert.match(html, /id="tag-range-guide"/);
+  assert.match(html, /<strong>1-299<\/strong> Localization/);
+  assert.match(html, /<strong>300-499<\/strong> Not Specified/);
+  assert.match(html, /<strong>500-586<\/strong> Dock/);
+  assert.match(html, /support\.bostondynamics\.com\/s\/article\/About-Fiducials-77114/);
+  assert.equal(html.includes('id="layout-mode"'), false);
+});
+
 test("technical SEO files include expected URLs", async () => {
   const robots = await readSiteFile("robots.txt");
   const sitemap = await readSiteFile("sitemap.xml");
@@ -40,6 +55,7 @@ test("technical SEO files include expected URLs", async () => {
   assert.match(sitemap, /https:\/\/yieumyoon\.github\.io\/spot-fiducial-3dprint-generator\/about\.html/);
   assert.match(sitemap, /https:\/\/yieumyoon\.github\.io\/spot-fiducial-3dprint-generator\/privacy\.html/);
   assert.match(sitemap, /https:\/\/yieumyoon\.github\.io\/spot-fiducial-3dprint-generator\/license\.html/);
+  assert.equal((sitemap.match(/<lastmod>2026-03-25<\/lastmod>/g) ?? []).length, 4);
 });
 
 test("privacy page keeps privacy navigation visible and marked current", async () => {

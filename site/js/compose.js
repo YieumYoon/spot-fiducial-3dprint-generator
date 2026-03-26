@@ -287,6 +287,85 @@ function updateHoleRadii(document, diameterMm) {
   }
 }
 
+function resolveTemplateProfile(metadata) {
+  return metadata.contentProfile === "dock" ? "dock" : "standard";
+}
+
+function buildSlotMap(metadata) {
+  const defaultLabels = {
+    companyName: "Company name",
+    robotName: "Robot name",
+    fixedTitle: "Title",
+    displayId: "Display ID",
+    dockDisplayId: "Display ID",
+    dockLocation: "Dock location",
+    warning: "Warning text",
+    logo: "Logo"
+  };
+
+  return Object.fromEntries(
+    Object.entries(metadata.slots ?? {}).map(([slotKey, slot]) => [
+      slotKey,
+      {
+        ...slot,
+        label: slot.label ?? defaultLabels[slotKey] ?? slotKey
+      }
+    ])
+  );
+}
+
+function buildTextDefinitions(profile, state, safeTagId) {
+  if (profile === "dock") {
+    return [
+      {
+        groupId: "display-id",
+        slotKey: "dockDisplayId",
+        text: safeTagId,
+        errorKey: "tagId"
+      },
+      {
+        groupId: "dock-location",
+        slotKey: "dockLocation",
+        text: state.dockLocation,
+        errorKey: "dockLocation"
+      }
+    ];
+  }
+
+  return [
+    {
+      groupId: "company-name",
+      slotKey: "companyName",
+      text: state.companyName,
+      errorKey: "companyName"
+    },
+    {
+      groupId: "robot-name",
+      slotKey: "robotName",
+      text: state.robotName,
+      errorKey: "robotName"
+    },
+    {
+      groupId: "fixed-title",
+      slotKey: "fixedTitle",
+      text: FIXED_STRINGS.fixedTitle,
+      errorKey: "fontFamily"
+    },
+    {
+      groupId: "display-id",
+      slotKey: "displayId",
+      text: safeTagId,
+      errorKey: "tagId"
+    },
+    {
+      groupId: "bottom-warning",
+      slotKey: "warning",
+      text: FIXED_STRINGS.warning,
+      errorKey: "fontFamily"
+    }
+  ];
+}
+
 function appendGuideLayer(document, slots) {
   const guideGroup = document.createElementNS(SVG_NS, "g");
   guideGroup.setAttribute("id", "preview-guides");
@@ -371,63 +450,57 @@ export function composeSvg({
   exportTarget = EXPORT_TARGET_PRINT
 }) {
   const { document, metadata } = parseTemplate(templateText);
+  const templateProfile = resolveTemplateProfile(metadata);
   const resolvedExportTarget = normalizeExportTarget(exportTarget);
   const errors = {};
   const safeTagId = isValidTagId(state.tagId) ? formatTagId(state.tagId) : "001";
   const safeDrillPreset = getDrillPreset(state.drillPreset) ?? getDrillPreset("m3");
+  const slotMap = buildSlotMap(metadata);
+  const textDefinitions = buildTextDefinitions(templateProfile, state, safeTagId);
 
   if (!isValidTagId(state.tagId)) {
     errors.tagId = "Selected AprilTag ID is not supported.";
   }
 
-  if (!getDrillPreset(state.drillPreset)) {
+  if (metadata.holeModel?.globalPresetOnly && !getDrillPreset(state.drillPreset)) {
     errors.drillPreset = "The selected drill-hole preset is not supported.";
   }
 
-  if (!state.companyName.trim()) {
+  if (templateProfile === "standard" && !state.companyName.trim()) {
     errors.companyName = "Company name is required for export.";
   }
 
-  if (!state.robotName.trim()) {
+  if (templateProfile === "standard" && !state.robotName.trim()) {
     errors.robotName = "Robot name is required for export.";
   }
 
+  if (templateProfile === "dock" && !state.dockLocation.trim()) {
+    errors.dockLocation = "Dock location is required for export.";
+  }
+
   populateApriltag(document, metadata.apriltag.tagBox, safeTagId);
-  updateHoleRadii(document, safeDrillPreset.diameterMm);
-
-  const slotMap = {
-    companyName: { ...metadata.slots.companyName, label: "Company name" },
-    robotName: { ...metadata.slots.robotName, label: "Robot name" },
-    fixedTitle: { ...metadata.slots.fixedTitle, label: "Title" },
-    displayId: { ...metadata.slots.displayId, label: "Display ID" },
-    warning: { ...metadata.slots.warning, label: "Warning text" },
-    logo: { ...metadata.slots.logo, label: "Logo" }
-  };
-
-  const textDefinitions = [
-    { groupId: "company-name", slotKey: "companyName", text: state.companyName },
-    { groupId: "robot-name", slotKey: "robotName", text: state.robotName },
-    { groupId: "fixed-title", slotKey: "fixedTitle", text: FIXED_STRINGS.fixedTitle },
-    { groupId: "display-id", slotKey: "displayId", text: safeTagId },
-    { groupId: "bottom-warning", slotKey: "warning", text: FIXED_STRINGS.warning }
-  ];
+  if (metadata.holeModel?.globalPresetOnly) {
+    updateHoleRadii(document, safeDrillPreset.diameterMm);
+  }
 
   for (const definition of textDefinitions) {
+    const slot = slotMap[definition.slotKey];
     const group = document.querySelector(`#${definition.groupId}`);
+    if (!group || !slot) {
+      continue;
+    }
+
     clearChildren(group);
 
     const textPath = buildTextPath({
       fontRecord,
       text: definition.text,
-      slot: slotMap[definition.slotKey],
+      slot,
       slotKey: definition.slotKey
     });
 
     if (textPath.error) {
-      const errorKey = definition.slotKey === "warning" || definition.slotKey === "fixedTitle"
-        ? "fontFamily"
-        : definition.slotKey;
-      errors[errorKey] = textPath.error;
+      errors[definition.errorKey] = textPath.error;
     } else {
       appendPath(group, `${definition.groupId}-path`, textPath.pathData, textPath.attributes);
     }
@@ -435,20 +508,22 @@ export function composeSvg({
 
   const logoGroup = document.querySelector("#logo");
   let effectiveLogoMode = "Empty";
-  try {
-    effectiveLogoMode = populateLogoGroup({
-      targetGroup: logoGroup,
-      templateDocument: document,
-      slot: slotMap.logo,
-      logoMode: state.logoMode,
-      uploadRecord: uploadLogoRecord
-    });
-  } catch (error) {
-    errors.logoUpload = "Uploaded logo is not a valid SVG file.";
+  if (logoGroup && slotMap.logo) {
+    try {
+      effectiveLogoMode = populateLogoGroup({
+        targetGroup: logoGroup,
+        templateDocument: document,
+        slot: slotMap.logo,
+        logoMode: state.logoMode,
+        uploadRecord: uploadLogoRecord
+      });
+    } catch (error) {
+      errors.logoUpload = "Uploaded logo is not a valid SVG file.";
+    }
   }
 
   if (includeGuides) {
-    appendGuideLayer(document, metadata.slots);
+    appendGuideLayer(document, metadata.slots ?? {});
   }
 
   if (resolvedExportTarget === EXPORT_TARGET_CAD) {

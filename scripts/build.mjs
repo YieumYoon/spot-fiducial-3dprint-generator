@@ -18,6 +18,7 @@ const requiredFiles = [
   "site/manifest.webmanifest",
   "site/robots.txt",
   "site/sitemap.xml",
+  "site/assets/spot-dock-fiducial-template.svg",
   "site/assets/spot-fiducial-template.svg",
   "site/assets/social-preview.svg",
   "site/assets/fonts/RobotoCondensed-Regular.ttf",

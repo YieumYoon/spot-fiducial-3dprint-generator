@@ -659,6 +659,10 @@ input[type="file"]:focus {
   gap: 12px;
 }
 
+.tag-range-stack {
+  align-items: stretch;
+}
+
 .radio-option {
   display: flex;
   align-items: center;
@@ -701,6 +705,41 @@ input[type="file"]:focus {
   color: var(--color-text-strong);
   font-size: 0.9rem;
   font-weight: 500;
+}
+
+.tag-range-option {
+  align-items: flex-start;
+  padding-block: 11px;
+}
+
+.tag-range-copy {
+  display: grid;
+}
+
+.tag-range-title {
+  color: var(--color-text-strong);
+  font-size: 0.92rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.range-guide-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--color-text-strong);
+}
+
+.range-guide-list li::marker {
+  color: var(--color-cta);
+}
+
+.range-guide-copy {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
 }
 
 .ghost-button,

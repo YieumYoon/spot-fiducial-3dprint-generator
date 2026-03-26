@@ -1,7 +1,21 @@
-import { DEFAULT_STATE, DRILL_PRESETS, FALLBACK_FONT_OPTION, FONT_OPTIONS, TAG_RANGE } from "./js/config.js";
+import {
+  DEFAULT_STATE,
+  DRILL_PRESETS,
+  FALLBACK_FONT_OPTION,
+  FONT_OPTIONS,
+  TAG_RANGE_PRESETS,
+  TEMPLATE_ASSET_PATHS
+} from "./js/config.js";
 import { trackEvent } from "./js/analytics.js";
 import { composeSvg } from "./js/compose.js";
-import { formatTagId, getFontOption } from "./js/core.js";
+import {
+  clearChildren,
+  coerceTagIdToPreset,
+  getFontOption,
+  getLayoutOption,
+  getTagRangePreset,
+  listTagIdsForPreset
+} from "./js/core.js";
 import { sanitizeUploadedLogo } from "./js/logo.js";
 import { ensureFont } from "./js/text.js";
 
@@ -13,18 +27,27 @@ const dom = {
   clearLogoButton: document.querySelector("#clear-logo-upload"),
   logoUploadField: document.querySelector("#logo-upload-field"),
   logoModeField: document.querySelector("#logo-mode-field"),
+  logoSection: document.querySelector("#logo-section"),
   statusChip: document.querySelector("#status-chip"),
   globalMessage: document.querySelector("#global-message"),
+  companyNameField: document.querySelector("#company-name-field"),
   companyName: document.querySelector("#company-name"),
+  robotNameField: document.querySelector("#robot-name-field"),
   robotName: document.querySelector("#robot-name"),
+  tagRangeField: document.querySelector("#tag-range-field"),
+  tagRangeOptions: document.querySelector("#tag-range-options"),
   tagId: document.querySelector("#tag-id"),
+  dockLocationField: document.querySelector("#dock-location-field"),
+  dockLocation: document.querySelector("#dock-location"),
   fontFamily: document.querySelector("#font-family"),
+  drillPresetField: document.querySelector("#drill-preset-field"),
   drillPreset: document.querySelector("#drill-preset"),
   logoUpload: document.querySelector("#logo-upload"),
   messages: {
     companyName: document.querySelector("#company-name-message"),
     robotName: document.querySelector("#robot-name-message"),
     tagId: document.querySelector("#tag-id-message"),
+    dockLocation: document.querySelector("#dock-location-message"),
     fontFamily: document.querySelector("#font-family-message"),
     drillPreset: document.querySelector("#drill-preset-message"),
     logoUpload: document.querySelector("#logo-upload-message")
@@ -38,17 +61,19 @@ const validationTargets = {
   companyName: [dom.companyName],
   robotName: [dom.robotName],
   tagId: [dom.tagId],
+  dockLocation: [dom.dockLocation],
   fontFamily: [dom.fontFamily],
   drillPreset: [dom.drillPreset],
   logoUpload: [dom.logoUpload, ...dom.logoModeInputs]
 };
 
 const validationContainers = {
-  companyName: [dom.companyName.closest(".field")],
-  robotName: [dom.robotName.closest(".field")],
+  companyName: [dom.companyNameField],
+  robotName: [dom.robotNameField],
   tagId: [dom.tagId.closest(".field")],
+  dockLocation: [dom.dockLocationField],
   fontFamily: [dom.fontFamily.closest(".field")],
-  drillPreset: [dom.drillPreset.closest(".field")],
+  drillPreset: [dom.drillPresetField],
   logoUpload: [dom.logoModeField, dom.logoUploadField]
 };
 
@@ -56,6 +81,7 @@ const fieldKeyByTarget = new Map([
   [dom.companyName, "companyName"],
   [dom.robotName, "robotName"],
   [dom.tagId, "tagId"],
+  [dom.dockLocation, "dockLocation"],
   [dom.fontFamily, "fontFamily"],
   [dom.drillPreset, "drillPreset"],
   [dom.logoUpload, "logoUpload"]
@@ -71,7 +97,10 @@ const state = {
 };
 
 const runtime = {
-  templateText: "",
+  templateTexts: {
+    standard: "",
+    dock: ""
+  },
   activeFont: null,
   fontError: "",
   logoError: "",
@@ -82,11 +111,33 @@ const runtime = {
   lastBlockingKeys: []
 };
 
+function getActiveLayoutOption() {
+  return getLayoutOption(state.tagId, state.layoutMode);
+}
+
+function isDockLayoutActive() {
+  return getActiveLayoutOption().id === "dock";
+}
+
+function isBrandingActive() {
+  return getActiveLayoutOption().supportsBranding;
+}
+
+function isDrillPresetActive() {
+  return getActiveLayoutOption().supportsDrillPreset;
+}
+
+function getActiveTemplateText() {
+  return runtime.templateTexts[getActiveLayoutOption().templateKey] ?? "";
+}
+
 function buildAnalyticsPayload(extraParams = {}) {
   return {
     drill_preset: state.drillPreset,
     font_family: state.fontFamily,
+    layout_mode: getActiveLayoutOption().id,
     logo_mode: state.logoMode,
+    tag_range_preset: state.tagRangePreset,
     tag_id: state.tagId,
     ...extraParams
   };
@@ -102,11 +153,13 @@ function trackGeneratorStart() {
 }
 
 function syncLogoUi() {
+  const brandingEnabled = isBrandingActive();
   const isCustom = state.logoMode === "custom";
   const hasUpload = Boolean(dom.logoUpload.files.length);
-  dom.logoUploadField.hidden = !isCustom;
-  dom.logoUpload.disabled = !isCustom;
-  dom.clearLogoButton.hidden = !isCustom || !hasUpload;
+  dom.logoSection.hidden = !brandingEnabled;
+  dom.logoUploadField.hidden = !brandingEnabled || !isCustom;
+  dom.logoUpload.disabled = !brandingEnabled || !isCustom;
+  dom.clearLogoButton.hidden = !brandingEnabled || !isCustom || !hasUpload;
 }
 
 function setStatus(text, tone) {
@@ -168,13 +221,64 @@ function resetFieldMessages() {
   }
 }
 
-function populateTagOptions() {
-  for (let id = TAG_RANGE.min; id <= TAG_RANGE.max; id += 1) {
-    const option = document.createElement("option");
-    option.value = formatTagId(id);
-    option.textContent = formatTagId(id);
-    dom.tagId.appendChild(option);
+function populateTagRangeOptions() {
+  clearChildren(dom.tagRangeOptions);
+
+  for (const preset of TAG_RANGE_PRESETS) {
+    const label = document.createElement("label");
+    label.className = "radio-option tag-range-option";
+
+    const input = document.createElement("input");
+    input.type = "radio";
+    input.name = "tagRangePreset";
+    input.value = preset.id;
+
+    const copy = document.createElement("span");
+    copy.className = "tag-range-copy";
+
+    const title = document.createElement("span");
+    title.className = "tag-range-title";
+    title.textContent = preset.label;
+
+    copy.append(title);
+    label.append(input, copy);
+    dom.tagRangeOptions.appendChild(label);
   }
+
+  dom.tagRangeInputs = Array.from(dom.form.querySelectorAll('input[name="tagRangePreset"]'));
+}
+
+function syncTagRangeInputsFromState() {
+  for (const input of dom.tagRangeInputs ?? []) {
+    input.checked = input.value === state.tagRangePreset;
+  }
+}
+
+function populateTagOptionsForPreset(presetId) {
+  const currentPresetId = dom.tagId.dataset.rangePreset;
+  if (currentPresetId !== presetId) {
+    clearChildren(dom.tagId);
+
+    for (const tagId of listTagIdsForPreset(presetId)) {
+      const option = document.createElement("option");
+      option.value = tagId;
+      option.textContent = tagId;
+      dom.tagId.appendChild(option);
+    }
+
+    dom.tagId.dataset.rangePreset = presetId;
+  }
+
+  dom.tagId.value = state.tagId;
+}
+
+function syncRangeState() {
+  const preset = getTagRangePreset(state.tagRangePreset);
+  state.tagRangePreset = preset.id;
+  state.tagId = coerceTagIdToPreset(state.tagId, preset.id);
+  state.layoutMode = preset.layoutMode;
+  syncTagRangeInputsFromState();
+  populateTagOptionsForPreset(preset.id);
 }
 
 function populateFontOptions() {
@@ -198,10 +302,20 @@ function populateDrillOptions() {
 function syncFormFromState() {
   dom.companyName.value = state.companyName;
   dom.robotName.value = state.robotName;
-  dom.tagId.value = formatTagId(state.tagId);
+  dom.dockLocation.value = state.dockLocation;
+  syncRangeState();
   dom.fontFamily.value = state.fontFamily;
   dom.drillPreset.value = state.drillPreset;
   dom.form.elements.logoMode.value = state.logoMode;
+}
+
+function syncLayoutUi() {
+  const layout = getActiveLayoutOption();
+
+  dom.companyNameField.hidden = layout.id !== "standard";
+  dom.robotNameField.hidden = layout.id !== "standard";
+  dom.dockLocationField.hidden = layout.id !== "dock";
+  dom.drillPresetField.hidden = !layout.supportsDrillPreset;
 }
 
 async function loadFont(fontId) {
@@ -222,20 +336,29 @@ async function loadFont(fontId) {
 function readStateFromForm() {
   state.companyName = dom.companyName.value;
   state.robotName = dom.robotName.value;
+  state.dockLocation = dom.dockLocation.value;
+  state.tagRangePreset = dom.form.elements.tagRangePreset.value;
   state.tagId = dom.tagId.value;
   state.fontFamily = dom.fontFamily.value;
   state.drillPreset = dom.drillPreset.value;
   state.logoMode = dom.form.elements.logoMode.value;
 }
 
+function syncStateFromForm() {
+  readStateFromForm();
+  syncRangeState();
+  syncLayoutUi();
+  syncLogoUi();
+}
+
 function buildBlockingErrors(previewErrors) {
   const mergedErrors = { ...previewErrors };
 
-  if (state.logoMode === "custom" && runtime.logoError) {
+  if (isBrandingActive() && state.logoMode === "custom" && runtime.logoError) {
     mergedErrors.logoUpload = runtime.logoError;
   }
 
-  if (state.logoMode === "custom" && !state.uploadLogoRecord) {
+  if (isBrandingActive() && state.logoMode === "custom" && !state.uploadLogoRecord) {
     mergedErrors.logoUpload = mergedErrors.logoUpload ?? "Upload a custom SVG or choose Default or Empty.";
   }
 
@@ -272,14 +395,15 @@ function downloadSvg(filename, svgText) {
 }
 
 function render() {
-  if (!runtime.templateText || !runtime.activeFont) {
+  const activeTemplateText = getActiveTemplateText();
+  if (!activeTemplateText || !runtime.activeFont) {
     return;
   }
 
   resetFieldMessages();
 
   const previewResult = composeSvg({
-    templateText: runtime.templateText,
+    templateText: activeTemplateText,
     state,
     fontRecord: runtime.activeFont,
     uploadLogoRecord: state.uploadLogoRecord,
@@ -323,7 +447,12 @@ function render() {
       setGlobalMessage(primaryBlockingMessage, "error");
     } else {
       setStatus("Complete plate details");
-      setGlobalMessage("Enter company and robot names to enable export.", "");
+      setGlobalMessage(
+        isDockLayoutActive()
+          ? "Enter a dock location label to enable export."
+          : "Enter company and robot names to enable export.",
+        ""
+      );
     }
   } else if (runtime.fontError) {
     setStatus("Export ready", "ready");
@@ -335,7 +464,7 @@ function render() {
 }
 
 async function handleFontSelection() {
-  readStateFromForm();
+  syncStateFromForm();
   await loadFont(state.fontFamily);
   render();
 }
@@ -376,7 +505,7 @@ async function handleLogoUpload() {
 }
 
 async function handleExport(exportTarget) {
-  readStateFromForm();
+  syncStateFromForm();
   runtime.attemptedExport = true;
   trackGeneratorStart();
   render();
@@ -387,7 +516,7 @@ async function handleExport(exportTarget) {
   }
 
   const exportResult = composeSvg({
-    templateText: runtime.templateText,
+    templateText: getActiveTemplateText(),
     state,
     fontRecord: runtime.activeFont,
     uploadLogoRecord: state.uploadLogoRecord,
@@ -406,21 +535,22 @@ async function handleExport(exportTarget) {
 }
 
 async function init() {
-  populateTagOptions();
+  populateTagRangeOptions();
   populateFontOptions();
   populateDrillOptions();
   syncFormFromState();
+  syncLayoutUi();
   syncLogoUi();
 
-  runtime.templateText = await fetch("./assets/spot-fiducial-template.svg").then((response) => response.text());
+  runtime.templateTexts.standard = await fetch(TEMPLATE_ASSET_PATHS.standard).then((response) => response.text());
+  runtime.templateTexts.dock = await fetch(TEMPLATE_ASSET_PATHS.dock).then((response) => response.text());
   await loadFont(state.fontFamily);
   render();
 
   dom.form.addEventListener("input", (event) => {
     markFieldTouched(event.target);
+    syncStateFromForm();
     trackGeneratorStart();
-    readStateFromForm();
-    syncLogoUi();
     if (event.target === dom.fontFamily) {
       return;
     }
@@ -430,6 +560,7 @@ async function init() {
 
   dom.form.addEventListener("change", async (event) => {
     markFieldTouched(event.target);
+    syncStateFromForm();
     trackGeneratorStart();
     if (event.target === dom.fontFamily) {
       await handleFontSelection();
@@ -441,8 +572,6 @@ async function init() {
       return;
     }
 
-    readStateFromForm();
-    syncLogoUi();
     render();
   });
 

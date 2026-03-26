@@ -38,18 +38,77 @@ export const FIXED_STRINGS = {
   warning: "DO NOT BLOCK OR MOVE"
 };
 
+export const TAG_RANGE_PRESETS = [
+  {
+    id: "localization",
+    label: "1-299 Localization",
+    shortLabel: "Localization",
+    description: "General Spot localization fiducials.",
+    min: 1,
+    max: 299,
+    layoutMode: "standard"
+  },
+  {
+    id: "not-specified",
+    label: "300-499 Not Specified",
+    shortLabel: "Not Specified",
+    description: "Reserved range with no additional purpose label in this tool.",
+    min: 300,
+    max: 499,
+    layoutMode: "standard"
+  },
+  {
+    id: "dock",
+    label: "500-586 Dock",
+    shortLabel: "Dock",
+    description: "Spot dock fiducials that use the DXF-matched dock plate layout.",
+    min: 500,
+    max: 586,
+    layoutMode: "dock"
+  }
+];
+
+export const DOCK_LAYOUT_MIN_TAG_ID = 500;
+
+export const TEMPLATE_ASSET_PATHS = {
+  standard: "./assets/spot-fiducial-template.svg",
+  dock: "./assets/spot-dock-fiducial-template.svg"
+};
+
+export const LAYOUT_OPTIONS = {
+  standard: {
+    id: "standard",
+    label: "Localization",
+    templateKey: "standard",
+    supportsBranding: true,
+    supportsDrillPreset: true
+  },
+  dock: {
+    id: "dock",
+    label: "Dock",
+    templateKey: "dock",
+    supportsBranding: false,
+    supportsDrillPreset: false
+  }
+};
+
 export const TEXT_LAYOUT = {
   companyName: { paddingX: 0.7, paddingY: 0.9, minScale: 0.55 },
   robotName: { paddingX: 0.7, paddingY: 0.9, minScale: 0.55 },
   fixedTitle: { paddingX: 1.4, paddingY: 0.85, minScale: 0.55 },
   displayId: { paddingX: 2.2, paddingY: 1.1, minScale: 0.55 },
-  warning: { paddingX: 1.8, paddingY: 0.9, minScale: 0.55 }
+  warning: { paddingX: 1.8, paddingY: 0.9, minScale: 0.55 },
+  dockDisplayId: { paddingX: 1.0, paddingY: 0.85, minScale: 0.4 },
+  dockLocation: { paddingX: 1.0, paddingY: 0.85, minScale: 0.35 }
 };
 
 export const DEFAULT_STATE = {
   companyName: "",
   robotName: "",
+  dockLocation: "",
+  tagRangePreset: TAG_RANGE_PRESETS[0].id,
   tagId: "001",
+  layoutMode: "standard",
   fontFamily: FONT_OPTIONS[0].id,
   drillPreset: DRILL_PRESETS[0].id,
   logoMode: "default"

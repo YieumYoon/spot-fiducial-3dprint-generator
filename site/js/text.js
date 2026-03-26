@@ -75,7 +75,12 @@ export function buildTextPath({ fontRecord, text, slot, slotKey, fill = "#111111
   }
 
   const measured = measurePath(fontRecord.font, trimmed, fitResult.fittedSize);
-  const x = slot.x + (slot.width - measured.width) / 2 - measured.bbox.x1;
+  const alignX = slot.alignX ?? "center";
+  const x = alignX === "left"
+    ? slot.x + layout.paddingX - measured.bbox.x1
+    : alignX === "right"
+      ? slot.x + slot.width - layout.paddingX - measured.width - measured.bbox.x1
+      : slot.x + (slot.width - measured.width) / 2 - measured.bbox.x1;
   const y = slot.y + (slot.height - measured.height) / 2 - measured.bbox.y1;
   const finalPath = fontRecord.font.getPath(trimmed, x, y, fitResult.fittedSize, { kerning: true });
 

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200.75mm" height="215.522mm" viewBox="0 0 200.75 215.522" version="1.1">
+  <title>Spot Dock AprilTag Production Template</title>
+  <desc>Dock fiducial production template derived from the DXF master drawing. Dynamic content is inserted into the named groups below.</desc>
+  <metadata id="template-spec">{"templateVersion":"1.0.0","templateName":"Spot Dock AprilTag Production Template","contentProfile":"dock","units":"mm","coordinateSystem":"top-left-origin","apriltag":{"family":"tag36h11","gridSize":8,"outerBlackBorderSquareMm":146.0,"tagBox":{"x":27.375,"y":28.575,"width":146.0,"height":146.0}},"plate":{"width":200.75,"height":215.522,"cornerRadius":10.0},"holeModel":{"globalPresetOnly":false},"slots":{"dockDisplayId":{"x":27.375,"y":200.522,"width":20.0,"height":8.0,"alignX":"left","label":"Display ID"},"dockLocation":{"x":153.375,"y":200.522,"width":20.0,"height":8.0,"alignX":"right","label":"Dock location"}}}</metadata>
+  <defs>
+    <clipPath id="clip-dock-display-id-box"><rect x="27.375" y="200.522" width="20" height="8" /></clipPath>
+    <clipPath id="clip-dock-location-box"><rect x="153.375" y="200.522" width="20" height="8" /></clipPath>
+  </defs>
+
+  <g id="background">
+    <path
+      id="plate-background-path"
+      fill="#ffffff"
+      d="M 46.5319 215.522 L 10 215.522 A 10 10 0 0 1 0 205.522 L 0 10 A 10 10 0 0 1 10 0 L 190.75 0 A 10 10 0 0 1 200.75 10 L 200.75 205.522 A 10 10 0 0 1 190.75 215.522 L 154.2181 215.522 L 112.3809 215.522 L 109.9498 215.222 L 106.625 215.222 L 103.675 212.272 L 103.675 207.3336 L 103.5664 206.7179 L 102.9901 205.1344 L 101.2986 203.95 L 99.4514 203.95 L 97.7599 205.1344 L 97.1836 206.7179 L 97.075 207.3336 L 97.075 212.272 L 94.125 215.222 L 90.8002 215.222 L 88.3691 215.522 Z"
+    />
+  </g>
+
+  <g id="plate-outline">
+    <path
+      id="plate-outline-path"
+      fill="none"
+      stroke="#111111"
+      stroke-width="0.35"
+      vector-effect="non-scaling-stroke"
+      d="M 46.5319 215.522 L 10 215.522 A 10 10 0 0 1 0 205.522 L 0 10 A 10 10 0 0 1 10 0 L 190.75 0 A 10 10 0 0 1 200.75 10 L 200.75 205.522 A 10 10 0 0 1 190.75 215.522 L 154.2181 215.522 L 112.3809 215.522 L 109.9498 215.222 L 106.625 215.222 L 103.675 212.272 L 103.675 207.3336 L 103.5664 206.7179 L 102.9901 205.1344 L 101.2986 203.95 L 99.4514 203.95 L 97.7599 205.1344 L 97.1836 206.7179 L 97.075 207.3336 L 97.075 212.272 L 94.125 215.222 L 90.8002 215.222 L 88.3691 215.522 Z"
+    />
+  </g>
+
+  <g id="holes">
+    <circle id="hole-left-small" cx="19.375" cy="204.25" r="2.98" fill="none" stroke="#111111" stroke-width="0.35" vector-effect="non-scaling-stroke" />
+    <circle id="hole-left-main-outer" cx="72.9034" cy="205.75" r="4.125" fill="none" stroke="#111111" stroke-width="0.35" vector-effect="non-scaling-stroke" />
+    <circle id="hole-left-main-inner" cx="72.9034" cy="205.75" r="2.2" fill="none" stroke="#111111" stroke-width="0.35" vector-effect="non-scaling-stroke" />
+    <circle id="hole-right-main-outer" cx="127.8466" cy="205.75" r="4.125" fill="none" stroke="#111111" stroke-width="0.35" vector-effect="non-scaling-stroke" />
+    <circle id="hole-right-main-inner" cx="127.8466" cy="205.75" r="2.2" fill="none" stroke="#111111" stroke-width="0.35" vector-effect="non-scaling-stroke" />
+    <circle id="hole-right-small" cx="181.375" cy="204.25" r="2.98" fill="none" stroke="#111111" stroke-width="0.35" vector-effect="non-scaling-stroke" />
+  </g>
+
+  <g id="apriltag">
+    <g id="apriltag-background">
+      <rect x="27.375" y="28.575" width="146" height="146" fill="#ffffff" />
+    </g>
+    <g id="apriltag-black"></g>
+  </g>
+
+  <g id="display-id" data-slot="dockDisplayId" clip-path="url(#clip-dock-display-id-box)"></g>
+  <g id="dock-location" data-slot="dockLocation" clip-path="url(#clip-dock-location-box)"></g>
+</svg>

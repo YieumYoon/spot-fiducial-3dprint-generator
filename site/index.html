@@ -4,18 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f8fafc" />
-    <title>Spot Fiducial AprilTag Plate Generator</title>
+    <title>Boston Dynamics Spot Fiducial AprilTag Plate Generator</title>
     <meta name="robots" content="index,follow" />
+    <meta name="author" content="Yieum Yoon" />
     <meta
       name="description"
-      content="Generate fabrication-ready Spot fiducial SVG plates with a fixed 146 mm AprilTag size for Spot fiducial requirements."
+      content="Browser-based generator for Boston Dynamics Spot fiducial AprilTag plates. Create printable 146 mm tag36h11 SVG plates with robot text, company text, logo, and CAD-safe export."
     />
     <meta name="google-site-verification" content="I_GlhdhlhqkC_PYbhYpQ4j8aqViEKx7WQHZFGkTD8_Q" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Spot Fiducial AprilTag Plate Generator" />
+    <meta property="og:title" content="Boston Dynamics Spot Fiducial AprilTag Plate Generator" />
     <meta
       property="og:description"
-      content="A static browser tool for generating Spot fiducial plate SVGs with a fixed 146 mm AprilTag size for Spot fiducial requirements."
+      content="A static browser tool for generating printable Boston Dynamics Spot fiducial plate SVGs with a fixed 146 mm AprilTag and clean exports for print or CAD."
     />
     <meta
       property="og:image"
@@ -23,10 +24,10 @@
     />
     <meta property="og:url" content="https://yieumyoon.github.io/spot-fiducial-3dprint-generator/" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Spot Fiducial AprilTag Plate Generator" />
+    <meta name="twitter:title" content="Boston Dynamics Spot Fiducial AprilTag Plate Generator" />
     <meta
       name="twitter:description"
-      content="Generate Spot fiducial SVG plates with live preview, clean export, and a fixed 146 mm AprilTag size."
+      content="Generate Boston Dynamics Spot fiducial SVG plates with live preview, clean export, and a fixed 146 mm AprilTag size."
     />
     <meta
       name="twitter:image"
@@ -41,15 +42,25 @@
       {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        "name": "Spot Fiducial AprilTag Plate Generator",
+        "name": "Boston Dynamics Spot Fiducial AprilTag Plate Generator",
         "applicationCategory": "DesignApplication",
+        "applicationSubCategory": "Robotics fabrication tool",
         "operatingSystem": "Web",
         "creator": {
           "@type": "Person",
           "name": "Yieum Yoon"
         },
-        "description": "Generate fabrication-ready Spot fiducial SVG plates with a fixed 146 mm AprilTag size for Spot fiducial requirements.",
-        "url": "https://yieumyoon.github.io/spot-fiducial-3dprint-generator/"
+        "description": "Generate fabrication-ready Boston Dynamics Spot fiducial SVG plates with a fixed 146 mm tag36h11 AprilTag, fitted text, optional logo upload, and clean print or CAD exports.",
+        "url": "https://yieumyoon.github.io/spot-fiducial-3dprint-generator/",
+        "sameAs": [
+          "https://github.com/YieumYoon/spot-fiducial-3dprint-generator"
+        ],
+        "featureList": [
+          "Fixed 146 mm Spot fiducial AprilTag plate layout",
+          "tag36h11 AprilTag IDs 001 through 586",
+          "Printable SVG and CAD SVG export",
+          "Optional built-in or uploaded SVG logo"
+        ]
       }
     </script>
     <script src="./vendor/opentype.js"></script>
@@ -85,9 +96,10 @@
                   <p class="eyebrow">Boston Dynamics Spot</p>
                   <h1 id="site-title">Spot Fiducial AprilTag Plate Generator</h1>
                   <p class="hero-copy">
-                    Generate fabrication-ready SVG plates with validated AprilTag IDs, fitted text, optional logo
-                    upload, and clean export for print or CAD workflows. The AprilTag size stays fixed at 146 mm
-                    for Spot fiducial requirements.
+                    Generate fabrication-ready SVG plates for Boston Dynamics Spot with validated AprilTag IDs,
+                    fitted text, optional logo upload, and clean export for print or CAD workflows. Pick the
+                    intended fiducial range first, then choose an ID that matches localization, unspecified, or
+                    dock workflows.
                   </p>
                 </div>
 
@@ -108,7 +120,15 @@
                     <h2>Plate</h2>
 
                     <div class="field-grid">
-                      <label class="field field-half">
+                      <div class="field field-full radio-group" id="tag-range-field">
+                        <span class="field-label">ID range</span>
+                        <div class="radio-stack tag-range-stack" id="tag-range-options"></div>
+                        <small class="field-message" id="tag-range-message">
+                          Choose the Boston Dynamics fiducial range first, then select an AprilTag ID from that range.
+                        </small>
+                      </div>
+
+                      <label class="field field-half" id="company-name-field">
                         <span class="field-label">Company name</span>
                         <input
                           id="company-name"
@@ -121,7 +141,7 @@
                         <small class="field-message" id="company-name-message"></small>
                       </label>
 
-                      <label class="field field-half">
+                      <label class="field field-half" id="robot-name-field">
                         <span class="field-label">Robot name</span>
                         <input
                           id="robot-name"
@@ -140,13 +160,26 @@
                         <small class="field-message" id="tag-id-message"></small>
                       </label>
 
+                      <label class="field field-full" id="dock-location-field" hidden>
+                        <span class="field-label">Dock location</span>
+                        <input
+                          id="dock-location"
+                          name="dockLocation"
+                          type="text"
+                          maxlength="16"
+                          placeholder="Dock A1"
+                          aria-describedby="dock-location-message"
+                        />
+                        <small class="field-message" id="dock-location-message"></small>
+                      </label>
+
                       <label class="field field-third">
                         <span class="field-label">Font family</span>
                         <select id="font-family" name="fontFamily" aria-describedby="font-family-message"></select>
                         <small class="field-message" id="font-family-message"></small>
                       </label>
 
-                      <label class="field field-third">
+                      <label class="field field-third" id="drill-preset-field">
                         <span class="field-label">Drill-hole preset</span>
                         <select id="drill-preset" name="drillPreset" aria-describedby="drill-preset-message"></select>
                         <small class="field-message" id="drill-preset-message"></small>
@@ -154,7 +187,27 @@
                     </div>
                   </section>
 
-                  <section class="panel-section panel-section-bordered">
+                  <section class="panel-section panel-section-bordered" id="tag-range-guide">
+                    <h2>ID Range Guide</h2>
+                    <ul class="range-guide-list">
+                      <li><strong>1-299</strong> Localization</li>
+                      <li><strong>300-499</strong> Not Specified</li>
+                      <li><strong>500-586</strong> Dock</li>
+                    </ul>
+                    <p class="range-guide-copy">
+                      Boston Dynamics assigns AprilTag ranges to different workflows. See
+                      <a
+                        href="https://support.bostondynamics.com/s/article/About-Fiducials-77114"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        About Fiducials
+                      </a>
+                      for the published range breakdown.
+                    </p>
+                  </section>
+
+                  <section class="panel-section panel-section-bordered" id="logo-section">
                     <h2>Logo</h2>
 
                     <div class="field radio-group" id="logo-mode-field">
@@ -223,9 +276,9 @@
           <article class="content-card">
             <h2>Why I Built This</h2>
             <p>
-              I wanted a faster way to make consistent Spot fiducial plates without reopening CAD every time a tag ID,
-              robot name, or logo changed. This tool keeps the template fixed and makes the variable parts quick to
-              update.
+              I wanted a faster way to make consistent Boston Dynamics Spot fiducial plates without reopening CAD
+              every time a tag ID, robot name, or logo changed. This tool keeps the template fixed and makes the
+              variable parts quick to update.
             </p>
           </article>
 
@@ -234,10 +287,46 @@
             <ul class="feature-list">
               <li>Live SVG preview with fixed Spot plate geometry</li>
               <li>Validated <code>tag36h11</code> AprilTag IDs from <code>001</code> to <code>586</code></li>
+              <li>Purpose-first ID range selection for localization, unspecified, and dock fiducials</li>
+              <li>500-series IDs assigned to the dock plate template that matches the size of spot dock plate size with dedicated bottom text slots</li>
               <li>Optional built-in, custom, or empty logo handling</li>
               <li>Separate print-safe and CAD-safe SVG downloads</li>
             </ul>
           </article>
+
+          <article class="content-card">
+            <h2>What The Tool Generates</h2>
+            <p>
+              The generator produces a printable Spot fiducial plate SVG with a fixed 146 mm AprilTag, fitted
+              company and robot text, consistent hole placement, and optional branding. It is designed for teams
+              that need repeatable plate artwork instead of manually editing the same template in CAD.
+            </p>
+          </article>
+
+          <article class="content-card">
+            <h2>How To Use It</h2>
+            <p>
+              Choose the fiducial range that matches your workflow, pick a <code>tag36h11</code> ID from that
+              subset, enter the text that should appear on the plate, and download either a print SVG or a CAD SVG.
+              The browser preview stays close to the final output so you can verify the plate before fabrication.
+            </p>
+          </article>
+        </section>
+
+        <section class="page-section" aria-labelledby="search-friendly-faq">
+          <h2 id="search-friendly-faq">Quick Answers</h2>
+          <div class="section-stack">
+            <p>
+              This site is a browser-based AprilTag plate generator for Boston Dynamics Spot. It focuses on one fixed
+              plate format rather than a generic marker designer, which helps keep the printable output consistent.
+            </p>
+            <ul class="section-list">
+              <li>The supported tag family is <code>tag36h11</code>.</li>
+              <li>The generated fiducial keeps a fixed 146 mm AprilTag size.</li>
+              <li>The exported files are SVG so they can be printed directly or opened in CAD tools.</li>
+              <li>The app runs client-side on GitHub Pages with no account or backend upload required.</li>
+            </ul>
+          </div>
         </section>
       </main>
 

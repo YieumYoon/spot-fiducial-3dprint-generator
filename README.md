@@ -1,10 +1,12 @@
 # Spot Fiducial AprilTag Plate Generator
 
+Live site: [Boston Dynamics Spot Fiducial AprilTag Plate Generator](https://yieumyoon.github.io/spot-fiducial-3dprint-generator/)
+
 Static browser application for generating fabrication-ready SVG fiducial plates for Boston Dynamics Spot. The app runs entirely client-side and is designed to be hosted directly on GitHub Pages with no backend services.
 
 ## Overview
 
-This repository contains a fixed-template generator for Spot fiducial plates built around the `tag36h11` AprilTag family. Users can choose a supported tag ID, set company and robot names, pick a drill-hole preset, choose a bundled font, optionally use a built-in logo or upload a custom SVG logo, and export either a print-safe SVG or a CAD-safe SVG.
+This repository contains a fixed-template generator for Spot fiducial plates built around the `tag36h11` AprilTag family. Users first choose the intended fiducial range, then pick a supported tag ID, set company and robot names or dock text, pick a drill-hole preset when applicable, choose a bundled font, optionally use a built-in logo or upload a custom SVG logo, and export either a print-safe SVG or a CAD-safe SVG.
 
 The exported file preserves the project’s fixed geometry and produces a clean fabrication asset rather than a generic preview graphic.
 
@@ -12,6 +14,8 @@ The exported file preserves the project’s fixed geometry and produces a clean 
 
 - Generates Spot fiducial plate SVGs with fixed millimeter-based geometry.
 - Supports `tag36h11` IDs `001-586`.
+- Adds purpose-first range selection for `1-299` localization, `300-499` not specified, and `500-586` dock fiducials.
+- Automatically applies the dock-specific DXF-matched template for `500-586` IDs, including a dock location field.
 - Applies automatic text fitting for company name, robot name, title, warning text, and displayed tag ID.
 - Uses path-based text in the final SVG for downstream CAD and fabrication workflows.
 - Supports a built-in default logo, an empty logo state, or a sanitized uploaded SVG logo.
