@@ -9,14 +9,14 @@
     <meta name="author" content="Yieum Yoon" />
     <meta
       name="description"
-      content="Browser-based generator for Boston Dynamics Spot fiducial AprilTag plates. Create printable 146 mm tag36h11 SVG plates with robot text, company text, logo, and CAD-safe export."
+      content="A browser tool for making fiducial plates for Boston Dynamics Spot. Pick an AprilTag ID, add your robot name and logo, and export a print-ready SVG."
     />
     <meta name="google-site-verification" content="I_GlhdhlhqkC_PYbhYpQ4j8aqViEKx7WQHZFGkTD8_Q" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Boston Dynamics Spot Fiducial AprilTag Plate Generator" />
     <meta
       property="og:description"
-      content="A static browser tool for generating printable Boston Dynamics Spot fiducial plate SVGs with a fixed 146 mm AprilTag and clean exports for print or CAD."
+      content="Pick an AprilTag ID, set your robot name and logo, and export a clean SVG for printing or CAD. Runs entirely in the browser, no install needed."
     />
     <meta
       property="og:image"
@@ -27,7 +27,7 @@
     <meta name="twitter:title" content="Boston Dynamics Spot Fiducial AprilTag Plate Generator" />
     <meta
       name="twitter:description"
-      content="Generate Boston Dynamics Spot fiducial SVG plates with live preview, clean export, and a fixed 146 mm AprilTag size."
+      content="Make printable AprilTag plates for Boston Dynamics Spot, right in your browser."
     />
     <meta
       name="twitter:image"
@@ -50,7 +50,7 @@
           "@type": "Person",
           "name": "Yieum Yoon"
         },
-        "description": "Generate fabrication-ready Boston Dynamics Spot fiducial SVG plates with a fixed 146 mm tag36h11 AprilTag, fitted text, optional logo upload, and clean print or CAD exports.",
+        "description": "Browser-based tool for generating printable AprilTag fiducial plates for Boston Dynamics Spot. Customize tag ID, text, and logo, then export an SVG for printing or CAD.",
         "url": "https://yieumyoon.github.io/spot-fiducial-3dprint-generator/",
         "sameAs": [
           "https://github.com/YieumYoon/spot-fiducial-3dprint-generator"
@@ -96,10 +96,8 @@
                   <p class="eyebrow">Boston Dynamics Spot</p>
                   <h1 id="site-title">Spot Fiducial AprilTag Plate Generator</h1>
                   <p class="hero-copy">
-                    Generate fabrication-ready SVG plates for Boston Dynamics Spot with validated AprilTag IDs,
-                    fitted text, optional logo upload, and clean export for print or CAD workflows. Pick the
-                    intended fiducial range first, then choose an ID that matches localization, unspecified, or
-                    dock workflows.
+                    Select the fiducial range for your workflow, pick a tag ID, enter your robot and company name,
+                    and download a print-ready SVG. No install or account needed.
                   </p>
                 </div>
 
@@ -288,7 +286,7 @@
               <li>Live SVG preview with fixed Spot plate geometry</li>
               <li>Validated <code>tag36h11</code> AprilTag IDs from <code>001</code> to <code>586</code></li>
               <li>Purpose-first ID range selection for localization, unspecified, and dock fiducials</li>
-              <li>500-series IDs assigned to the dock plate template that matches the size of spot dock plate size with dedicated bottom text slots</li>
+              <li>500-series dock IDs use a plate layout sized to fit the Spot dock, with a dedicated dock location field</li>
               <li>Optional built-in, custom, or empty logo handling</li>
               <li>Separate print-safe and CAD-safe SVG downloads</li>
             </ul>
@@ -297,9 +295,9 @@
           <article class="content-card">
             <h2>What The Tool Generates</h2>
             <p>
-              The generator produces a printable Spot fiducial plate SVG with a fixed 146 mm AprilTag, fitted
-              company and robot text, consistent hole placement, and optional branding. It is designed for teams
-              that need repeatable plate artwork instead of manually editing the same template in CAD.
+              The generator produces a printable Spot fiducial plate SVG with a fixed 146 mm AprilTag, your
+              company and robot name, and consistent drill hole placement. Useful when your team needs to make
+              new plates without reopening CAD each time.
             </p>
           </article>
 
