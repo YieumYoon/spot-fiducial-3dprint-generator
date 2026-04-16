@@ -39,6 +39,37 @@ Export variants:
 - `Print SVG` keeps the root SVG in millimeter units with a millimeter `viewBox`, which makes SVG-to-PDF conversion and browser printing preserve the intended physical size.
 - `CAD SVG` keeps the existing CAD-normalized root, using 96 dpi SVG user units under the hood while preserving millimeter `width` and `height` for importers that expect pixel-based SVG coordinates.
 
+## Fusion STEP Automation
+
+The repository now includes a Fusion 360 automation path for turning an exported CAD SVG into a multi-body STEP without manually selecting every profile in the UI.
+
+Files:
+
+- [`scripts/fusion360/spot_svg_to_step.py`](/Users/junsu/Documents/github/spot-fiducial-3dprint-generator/scripts/fusion360/spot_svg_to_step.py)
+- [`scripts/fusion360/svg_step_model.py`](/Users/junsu/Documents/github/spot-fiducial-3dprint-generator/scripts/fusion360/svg_step_model.py)
+
+What it builds from the SVG:
+
+- plate base: `-1.35 mm`
+- white layer: `+1.0 mm`
+- black layer: `+1.0005 mm`
+- drill holes stay excluded from every extrusion pass
+
+How to use it in Fusion 360:
+
+1. Export a `CAD SVG` from the site.
+2. In Fusion 360, create a new script and replace the generated main file with [`spot_svg_to_step.py`](/Users/junsu/Documents/github/spot-fiducial-3dprint-generator/scripts/fusion360/spot_svg_to_step.py).
+3. Place [`svg_step_model.py`](/Users/junsu/Documents/github/spot-fiducial-3dprint-generator/scripts/fusion360/svg_step_model.py) in the same Fusion script folder.
+4. Run the Fusion script, choose the source SVG, then choose the output `.step` file.
+
+Use a current Fusion 360 build for this workflow. The script relies on the API's profile-face sampling so ring-shaped letters and AprilTag holes can be separated reliably.
+
+The helper parser can also be run locally to inspect how a generated SVG will be interpreted before opening Fusion:
+
+- `python3 scripts/fusion360/svg_step_model.py describe output/example-cad.svg`
+- `python3 scripts/fusion360/svg_step_model.py point output/example-cad.svg 20 40`
+- `python3 scripts/fusion360/svg_step_model.py emit-layer output/example-cad.svg overlay`
+
 ## Tech Stack
 
 - Plain static HTML, CSS, and browser ES modules
