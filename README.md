@@ -43,10 +43,12 @@ Export variants:
 
 The repository now includes a Fusion 360 automation path for turning an exported CAD SVG into a multi-body STEP without manually selecting every profile in the UI.
 
+Codex users can invoke the repository-scoped `fusion360-svg-to-step` skill in [`.agents/skills/fusion360-svg-to-step`](.agents/skills/fusion360-svg-to-step). The skill drives an open Autodesk Fusion instance through the Fusion MCP connector, reuses the tested project scripts below, and verifies each exported STEP. Because the skill is checked into the repository, every contributor receives the same workflow after cloning the project.
+
 Files:
 
-- [`scripts/fusion360/spot_svg_to_step.py`](/Users/junsu/Documents/github/spot-fiducial-3dprint-generator/scripts/fusion360/spot_svg_to_step.py)
-- [`scripts/fusion360/svg_step_model.py`](/Users/junsu/Documents/github/spot-fiducial-3dprint-generator/scripts/fusion360/svg_step_model.py)
+- [`scripts/fusion360/spot_svg_to_step.py`](scripts/fusion360/spot_svg_to_step.py)
+- [`scripts/fusion360/svg_step_model.py`](scripts/fusion360/svg_step_model.py)
 
 What it builds from the SVG:
 
@@ -55,11 +57,39 @@ What it builds from the SVG:
 - black layer: `+1.0005 mm`
 - drill holes stay excluded from every extrusion pass
 
-How to use it in Fusion 360:
+### Use with Codex and Fusion MCP
+
+Requirements:
+
+- Open this repository in Codex so it discovers the checked-in `.agents/skills` directory.
+- Open Autodesk Fusion and start its MCP connector.
+- Export at least one `CAD SVG` from the site, normally into `output/`.
+
+The skill declares the default local Fusion MCP endpoint at `http://127.0.0.1:27182/mcp`. If the connector is not listed in Codex, add it and restart Codex:
+
+```bash
+codex mcp add fusion --url http://127.0.0.1:27182/mcp
+```
+
+Invoke the skill explicitly with a prompt such as:
+
+```text
+Use $fusion360-svg-to-step to convert output/example-cad.svg to STEP.
+```
+
+For a batch:
+
+```text
+Use $fusion360-svg-to-step to convert every *-cad.svg file in output/ to STEP.
+```
+
+Codex resolves machine-specific paths at runtime, runs the existing project converter through Fusion MCP, writes each `.step` beside its source SVG, and verifies the exported file and Fusion body geometry. It does not overwrite an existing STEP unless explicitly requested.
+
+### Manual Fusion 360 Usage
 
 1. Export a `CAD SVG` from the site.
-2. In Fusion 360, create a new script and replace the generated main file with [`spot_svg_to_step.py`](/Users/junsu/Documents/github/spot-fiducial-3dprint-generator/scripts/fusion360/spot_svg_to_step.py).
-3. Place [`svg_step_model.py`](/Users/junsu/Documents/github/spot-fiducial-3dprint-generator/scripts/fusion360/svg_step_model.py) in the same Fusion script folder.
+2. In Fusion 360, create a new script and replace the generated main file with [`spot_svg_to_step.py`](scripts/fusion360/spot_svg_to_step.py).
+3. Place [`svg_step_model.py`](scripts/fusion360/svg_step_model.py) in the same Fusion script folder.
 4. Run the Fusion script, choose the source SVG, then choose the output `.step` file.
 
 Use a current Fusion 360 build for this workflow. The script relies on the API's profile-face sampling so ring-shaped letters and AprilTag holes can be separated reliably.
@@ -94,11 +124,11 @@ Commands:
 - `npm run build`  
   Runs static build verification checks.
 
-The deployable site is served from [`site/`](/Users/junsu/Documents/github/spot-fiducial-3dprint-generator/site).
+The deployable site is served from [`site/`](site/).
 
 ## Deployment
 
-GitHub Pages deployment is handled by [`deploy.yml`](/Users/junsu/Documents/github/spot-fiducial-3dprint-generator/.github/workflows/deploy.yml).
+GitHub Pages deployment is handled by [`deploy.yml`](.github/workflows/deploy.yml).
 
 On pushes to `main`, the workflow:
 
@@ -110,15 +140,15 @@ On pushes to `main`, the workflow:
 
 ## Repository Layout
 
-- [`site/`](/Users/junsu/Documents/github/spot-fiducial-3dprint-generator/site)  
+- [`site/`](site/)
   Static application files served in development and production.
-- [`scripts/`](/Users/junsu/Documents/github/spot-fiducial-3dprint-generator/scripts)  
+- [`scripts/`](scripts/)
   Local utility scripts for the dev server, build verification, and AprilTag data generation.
-- [`tests/`](/Users/junsu/Documents/github/spot-fiducial-3dprint-generator/tests)  
+- [`tests/`](tests/)
   Node-based tests covering core logic, tag data, template metadata, and text fitting.
-- [`docs/`](/Users/junsu/Documents/github/spot-fiducial-3dprint-generator/docs)  
+- [`docs/`](docs/)
   Source requirements, template references, and visual assets used to derive the production output.
-- [`vendor/`](/Users/junsu/Documents/github/spot-fiducial-3dprint-generator/vendor)  
+- [`vendor/`](vendor/)
   Source AprilTag image assets used for generated tag data.
 
 ## Fonts and Third-Party Assets
@@ -129,10 +159,10 @@ This repository bundles the following Pretendard font files for UI selection and
 - `site/assets/fonts/Pretendard-SemiBold.otf`
 - `site/assets/fonts/Pretendard-ExtraBold.otf`
 
-Pretendard is by Orion Cactus and is distributed under the `SIL Open Font License 1.1`. The included license text is available at [`LICENSES/Pretendard-OFL-1.1.txt`](/Users/junsu/Documents/github/spot-fiducial-3dprint-generator/LICENSES/Pretendard-OFL-1.1.txt).
+Pretendard is by Orion Cactus and is distributed under the `SIL Open Font License 1.1`. The included license text is available at [`LICENSES/Pretendard-OFL-1.1.txt`](LICENSES/Pretendard-OFL-1.1.txt).
 
 Source project: [orioncactus/pretendard](https://github.com/orioncactus/pretendard)
 
 ## License
 
-This project is licensed under the MIT License. See [`LICENSE`](/Users/junsu/Documents/github/spot-fiducial-3dprint-generator/LICENSE) for details.
+This project is licensed under the MIT License. See [`LICENSE`](LICENSE) for details.

@@ -1,0 +1,15 @@
+interface:
+  display_name: "Fusion 360 SVG to STEP"
+  short_description: "Convert project CAD SVG exports to STEP via Fusion MCP"
+  default_prompt: "Use $fusion360-svg-to-step to convert a generated CAD SVG into a verified STEP file."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "fusion"
+      description: "Autodesk Fusion MCP connector; Autodesk Fusion must be open and running"
+      transport: "streamable_http"
+      url: "http://127.0.0.1:27182/mcp"
+
+policy:
+  allow_implicit_invocation: true
