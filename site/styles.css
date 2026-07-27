@@ -104,11 +104,21 @@ code {
 
 .site-nav a:hover,
 .site-nav a:focus-visible,
+.site-nav a[aria-current="page"],
 .footer-links a:hover,
 .footer-links a:focus-visible,
+.footer-links a[aria-current="page"],
 .footer-copy a:hover,
 .footer-copy a:focus-visible {
   color: var(--color-text-strong);
+}
+
+.site-nav a[aria-current="page"],
+.footer-links a[aria-current="page"] {
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.24em;
 }
 
 .site-nav a:focus-visible,
@@ -997,6 +1007,11 @@ input[type="file"]:focus {
   .site-nav,
   .footer-links {
     gap: 12px;
+  }
+
+  .site-nav {
+    display: grid;
+    grid-template-columns: repeat(3, max-content);
   }
 
   .hero,
