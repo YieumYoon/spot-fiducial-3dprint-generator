@@ -8,6 +8,7 @@ const root = path.resolve(__dirname, "..");
 const requiredFiles = [
   "site/index.html",
   "site/about.html",
+  "site/svg-to-step.html",
   "site/privacy.html",
   "site/license.html",
   "site/styles.css",
@@ -37,12 +38,14 @@ if (!templateSvg.includes('id="background"') || !templateSvg.includes('id="april
 
 const homePage = await readFile(path.join(root, "site/index.html"), "utf8");
 const aboutPage = await readFile(path.join(root, "site/about.html"), "utf8");
+const svgToStepPage = await readFile(path.join(root, "site/svg-to-step.html"), "utf8");
 const privacyPage = await readFile(path.join(root, "site/privacy.html"), "utf8");
 const licensePage = await readFile(path.join(root, "site/license.html"), "utf8");
 
 for (const [filename, html] of [
   ["site/index.html", homePage],
   ["site/about.html", aboutPage],
+  ["site/svg-to-step.html", svgToStepPage],
   ["site/privacy.html", privacyPage],
   ["site/license.html", licensePage]
 ]) {
@@ -81,6 +84,7 @@ const sitemapXml = await readFile(path.join(root, "site/sitemap.xml"), "utf8");
 for (const expectedUrl of [
   "https://yieumyoon.github.io/spot-fiducial-3dprint-generator/",
   "https://yieumyoon.github.io/spot-fiducial-3dprint-generator/about.html",
+  "https://yieumyoon.github.io/spot-fiducial-3dprint-generator/svg-to-step.html",
   "https://yieumyoon.github.io/spot-fiducial-3dprint-generator/privacy.html",
   "https://yieumyoon.github.io/spot-fiducial-3dprint-generator/license.html"
 ]) {

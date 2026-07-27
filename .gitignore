@@ -12,3 +12,5 @@ npm-debug.log*
 .codex/
 /design-system/
 .claude/
+.omx
+output/

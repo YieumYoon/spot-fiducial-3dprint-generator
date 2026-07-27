@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f8fafc" />
+    <title>SVG to STEP | Spot Fiducial AprilTag Plate Generator</title>
+    <meta name="robots" content="index,follow" />
+    <meta name="author" content="Yieum Yoon" />
+    <meta
+      name="description"
+      content="A short guide to turning this project's CAD SVG export into a STEP file with Codex, Autodesk Fusion, and the local Fusion MCP connector."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="SVG to STEP | Spot Fiducial AprilTag Plate Generator" />
+    <meta
+      property="og:description"
+      content="Export a CAD SVG, run the repository's Codex skill through Autodesk Fusion, and verify the resulting STEP file."
+    />
+    <meta
+      property="og:image"
+      content="https://yieumyoon.github.io/spot-fiducial-3dprint-generator/assets/social-preview.svg"
+    />
+    <meta
+      property="og:url"
+      content="https://yieumyoon.github.io/spot-fiducial-3dprint-generator/svg-to-step.html"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="SVG to STEP | Spot Fiducial AprilTag Plate Generator" />
+    <meta
+      name="twitter:description"
+      content="A concise guide to converting this project's CAD SVG exports into STEP files through Autodesk Fusion."
+    />
+    <meta
+      name="twitter:image"
+      content="https://yieumyoon.github.io/spot-fiducial-3dprint-generator/assets/social-preview.svg"
+    />
+    <link
+      rel="canonical"
+      href="https://yieumyoon.github.io/spot-fiducial-3dprint-generator/svg-to-step.html"
+    />
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="shortcut icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="module" src="./js/public-site.js"></script>
+  </head>
+  <body data-page="svg-to-step">
+    <div class="site-shell">
+      <header class="site-header">
+        <a class="site-brand" href="./">Spot Fiducial</a>
+        <nav class="site-nav" aria-label="Primary">
+          <a href="./">Home</a>
+          <a href="./about.html">About</a>
+          <a href="./svg-to-step.html" aria-current="page">SVG to STEP</a>
+          <a
+            href="https://github.com/YieumYoon/spot-fiducial-3dprint-generator"
+            target="_blank"
+            rel="noreferrer"
+            data-analytics-event="github_clicked"
+            data-analytics-label="svg_to_step_repo"
+          >
+            GitHub
+          </a>
+          <a href="./privacy.html">Privacy</a>
+          <a href="./license.html">License</a>
+        </nav>
+      </header>
+
+      <main class="page-main">
+        <section class="page-hero">
+          <p class="eyebrow">SVG to STEP</p>
+          <h1>Create a 3D STEP file from an SVG</h1>
+          <p>
+            Use the repository's Codex skill to send a generated CAD SVG to Autodesk Fusion, build the layered model,
+            and export a STEP file without selecting every profile by hand.
+          </p>
+        </section>
+
+        <aside class="notice-card guide-status" aria-labelledby="validation-status">
+          <p class="legal-label" id="validation-status">Current validation status</p>
+          <p>
+            This workflow works on the original development computer, but it has not yet been fully verified
+            end-to-end on another person's computer. Fusion versions, MCP connector setup, and local permissions may
+            require troubleshooting.
+          </p>
+        </aside>
+
+        <section class="page-section">
+          <h2>Before you start</h2>
+          <ul class="section-list">
+            <li>Clone this repository and open it in Codex.</li>
+            <li>Install and open a current Autodesk Fusion build.</li>
+            <li>Start the local Autodesk Fusion MCP connector.</li>
+            <li>Generate and download a <code>CAD SVG</code> from the <a class="guide-link" href="./">plate generator</a>.</li>
+          </ul>
+        </section>
+
+        <section class="page-section">
+          <h2>Convert with Codex</h2>
+          <ol class="guide-steps">
+            <li>
+              Keep Autodesk Fusion open. Codex discovers the project skill from
+              <code>.agents/skills/fusion360-svg-to-step</code>.
+            </li>
+            <li>
+              If Codex does not list the Fusion MCP server, register the connector and restart Codex:
+              <pre class="command-block"><code>codex mcp add fusion --url http://127.0.0.1:27182/mcp</code></pre>
+            </li>
+            <li>
+              Ask Codex to run the project skill:
+              <pre class="command-block"><code>Use $fusion360-svg-to-step to convert output/example-cad.svg to STEP.</code></pre>
+            </li>
+            <li>
+              Wait for Codex to report the output path, file size, and Fusion body check before using the STEP file.
+            </li>
+          </ol>
+        </section>
+
+        <section class="page-section">
+          <h2>What the workflow creates</h2>
+          <ul class="section-list">
+            <li>A <code>-1.35 mm</code> white base plate</li>
+            <li>A <code>+1.0 mm</code> white overlay</li>
+            <li>A <code>+1.0005 mm</code> black text, logo, and AprilTag layer</li>
+            <li>A STEP file saved beside the source SVG unless another output path is requested</li>
+          </ul>
+        </section>
+
+        <section class="page-section">
+          <h2>If something fails</h2>
+          <div class="section-stack">
+            <p>
+              First confirm that Fusion is open and the connector is reachable. A very small STEP file usually means
+              the geometry was imported incorrectly; the project skill should use the included parser rather than
+              Fusion's generic SVG import.
+            </p>
+            <p>
+              If the problem is reproducible, include your operating system, Fusion version, connector version, and
+              the Codex error in a
+              <a
+                class="guide-link"
+                href="https://github.com/YieumYoon/spot-fiducial-3dprint-generator/issues"
+                target="_blank"
+                rel="noreferrer"
+                data-analytics-event="github_clicked"
+                data-analytics-label="svg_to_step_issues"
+              >
+                GitHub issue
+              </a>.
+            </p>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <p class="footer-copy">
+          Built by
+          <a
+            href="https://github.com/YieumYoon"
+            target="_blank"
+            rel="noreferrer"
+            data-analytics-event="contact_clicked"
+            data-analytics-label="svg_to_step_footer_profile"
+          >
+            Yieum Yoon
+          </a>
+          .
+        </p>
+        <div class="footer-links">
+          <a href="./">Home</a>
+          <a href="./about.html">About</a>
+          <a href="./svg-to-step.html" aria-current="page">SVG to STEP</a>
+          <a href="./privacy.html">Privacy</a>
+          <a href="./license.html">License</a>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

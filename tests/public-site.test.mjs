@@ -9,7 +9,7 @@ async function readSiteFile(relativePath) {
 }
 
 test("public pages include lean SEO metadata", async () => {
-  for (const relativePath of ["index.html", "about.html", "privacy.html", "license.html"]) {
+  for (const relativePath of ["index.html", "about.html", "svg-to-step.html", "privacy.html", "license.html"]) {
     const html = await readSiteFile(relativePath);
 
     for (const snippet of [
@@ -53,9 +53,20 @@ test("technical SEO files include expected URLs", async () => {
 
   assert.match(robots, /Sitemap: https:\/\/yieumyoon\.github\.io\/spot-fiducial-3dprint-generator\/sitemap\.xml/);
   assert.match(sitemap, /https:\/\/yieumyoon\.github\.io\/spot-fiducial-3dprint-generator\/about\.html/);
+  assert.match(sitemap, /https:\/\/yieumyoon\.github\.io\/spot-fiducial-3dprint-generator\/svg-to-step\.html/);
   assert.match(sitemap, /https:\/\/yieumyoon\.github\.io\/spot-fiducial-3dprint-generator\/privacy\.html/);
   assert.match(sitemap, /https:\/\/yieumyoon\.github\.io\/spot-fiducial-3dprint-generator\/license\.html/);
   assert.equal((sitemap.match(/<lastmod>2026-03-25<\/lastmod>/g) ?? []).length, 4);
+});
+
+test("SVG to STEP page explains usage and validation status", async () => {
+  const html = await readSiteFile("svg-to-step.html");
+
+  assert.match(html, /Use \$fusion360-svg-to-step to convert output\/example-cad\.svg to STEP\./);
+  assert.match(html, /codex mcp add fusion --url http:\/\/127\.0\.0\.1:27182\/mcp/);
+  assert.match(html, /has not yet been fully verified[\s\S]*another person's computer/);
+  assert.match(html, /Create a 3D STEP file from an SVG/);
+  assert.match(html, /href="\.\/svg-to-step\.html" aria-current="page"/);
 });
 
 test("privacy page keeps privacy navigation visible and marked current", async () => {
