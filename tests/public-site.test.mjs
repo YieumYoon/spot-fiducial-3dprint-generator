@@ -47,6 +47,32 @@ test("homepage exposes the purpose-first range selector and guide", async () => 
   assert.equal(html.includes('id="layout-mode"'), false);
 });
 
+test("primary navigation stays consistent and marks the current page", async () => {
+  const pages = [
+    ["index.html", "./"],
+    ["about.html", "./about.html"],
+    ["svg-to-step.html", "./svg-to-step.html"],
+    ["privacy.html", "./privacy.html"],
+    ["license.html", "./license.html"]
+  ];
+  const expectedLabels = ["Home", "About", "SVG to STEP", "GitHub", "Privacy", "License"];
+
+  for (const [relativePath, currentHref] of pages) {
+    const html = await readSiteFile(relativePath);
+    const primaryNav = html.match(/<nav class="site-nav" aria-label="Primary">([\s\S]*?)<\/nav>/)?.[1] ?? "";
+    const labels = [...primaryNav.matchAll(/<a[\s\S]*?>([\s\S]*?)<\/a>/g)].map((match) =>
+      match[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim()
+    );
+
+    assert.deepEqual(labels, expectedLabels, `${relativePath} should use the shared primary navigation`);
+    assert.match(
+      primaryNav,
+      new RegExp(`href="${currentHref.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}" aria-current="page"`)
+    );
+    assert.equal((primaryNav.match(/aria-current="page"/g) ?? []).length, 1);
+  }
+});
+
 test("technical SEO files include expected URLs", async () => {
   const robots = await readSiteFile("robots.txt");
   const sitemap = await readSiteFile("sitemap.xml");
